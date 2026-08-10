@@ -61,6 +61,14 @@ async def get_products(
         "limit": limit
     }
 
+@router.get("/categories")
+async def get_categories(db: Session = Depends(get_db)):
+    result = db.execute(
+        text("SELECT * FROM public.categories ORDER BY name")
+    ).fetchall()
+    return {"data": [dict(row._mapping) for row in result]}
+
+
 
 @router.get("/{product_id}")
 async def get_product(product_id: str, db: Session = Depends(get_db)):
@@ -79,3 +87,4 @@ async def get_product(product_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Product not found")
 
     return dict(result._mapping)
+
