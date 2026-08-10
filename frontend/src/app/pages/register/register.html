@@ -1,0 +1,196 @@
+<div class="min-h-screen bg-rentora-bg flex items-center justify-center px-4 py-12">
+  <div class="w-full max-w-md">
+
+    <!-- Logo -->
+    <div class="text-center mb-8">
+      <a routerLink="/" class="text-3xl font-bold text-white tracking-tight">
+        Rentora
+      </a>
+      <p class="text-rentora-muted mt-2 text-sm">
+        Create your account to start renting.
+      </p>
+    </div>
+
+    <!-- Card -->
+    <div class="bg-rentora-surface border border-rentora-border rounded-2xl p-8">
+
+      <h2 class="text-xl font-semibold text-white mb-6">Create Account</h2>
+
+      <!-- Error Message -->
+      @if (errorMessage) {
+        <div class="mb-4 px-4 py-3 rounded-lg bg-red-500/10
+                    border border-red-500/30 text-red-400 text-sm">
+          {{ errorMessage }}
+        </div>
+      }
+
+      <!-- Form -->
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+        <!-- Full Name -->
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-rentora-text mb-1">
+            Full Name
+          </label>
+          <input
+            type="text"
+            formControlName="full_name"
+            placeholder="John Doe"
+            class="w-full px-4 py-3 rounded-lg bg-rentora-bg border
+                   border-rentora-border text-white placeholder-rentora-muted
+                   outline-none transition focus:border-rentora-primary
+                   [&.ng-invalid.ng-touched]:border-red-500"
+          />
+          @if (full_name.invalid && full_name.touched) {
+            <p class="mt-1 text-xs text-red-400">
+              @if (full_name.errors?.['required'])  { Full name is required. }
+              @if (full_name.errors?.['minlength']) { Name must be at least 2 characters. }
+            </p>
+          }
+        </div>
+
+        <!-- Email -->
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-rentora-text mb-1">
+            Email Address
+          </label>
+          <input
+            type="email"
+            formControlName="email"
+            placeholder="you@example.com"
+            class="w-full px-4 py-3 rounded-lg bg-rentora-bg border
+                   border-rentora-border text-white placeholder-rentora-muted
+                   outline-none transition focus:border-rentora-primary
+                   [&.ng-invalid.ng-touched]:border-red-500"
+          />
+          @if (email.invalid && email.touched) {
+            <p class="mt-1 text-xs text-red-400">
+              @if (email.errors?.['required']) { Email is required. }
+              @if (email.errors?.['email'])    { Enter a valid email address. }
+            </p>
+          }
+        </div>
+
+        <!-- Password -->
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-rentora-text mb-1">
+            Password
+          </label>
+          <input
+            type="password"
+            formControlName="password"
+            placeholder="Minimum 6 characters"
+            class="w-full px-4 py-3 rounded-lg bg-rentora-bg border
+                   border-rentora-border text-white placeholder-rentora-muted
+                   outline-none transition focus:border-rentora-primary
+                   [&.ng-invalid.ng-touched]:border-red-500"
+          />
+          @if (password.invalid && password.touched) {
+            <p class="mt-1 text-xs text-red-400">
+              @if (password.errors?.['required'])  { Password is required. }
+              @if (password.errors?.['minlength']) { Password must be at least 6 characters. }
+            </p>
+          }
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-rentora-text mb-1">
+            Confirm Password
+          </label>
+          <input
+            type="password"
+            formControlName="confirm_password"
+            placeholder="Re-enter your password"
+            class="w-full px-4 py-3 rounded-lg bg-rentora-bg border
+                   border-rentora-border text-white placeholder-rentora-muted
+                   outline-none transition focus:border-rentora-primary
+                   [&.ng-invalid.ng-touched]:border-red-500"
+          />
+          @if (confirm_password.invalid && confirm_password.touched) {
+            <p class="mt-1 text-xs text-red-400">
+              @if (confirm_password.errors?.['required']) { Please confirm your password. }
+              @if (confirm_password.errors?.['mismatch']) { Passwords do not match. }
+            </p>
+          }
+        </div>
+
+        <!-- Role Selection -->
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-rentora-text mb-2">
+            I want to
+          </label>
+          <div class="grid grid-cols-2 gap-3">
+
+            <!-- Renter/Customer -->
+            <label class="relative cursor-pointer">
+              <input
+                type="radio"
+                formControlName="role"
+                value="customer"
+                class="peer sr-only"
+              />
+              <div class="flex flex-col items-center gap-2 px-4 py-4 rounded-xl
+                          border border-rentora-border bg-rentora-bg text-center
+                          transition peer-checked:border-rentora-primary
+                          peer-checked:bg-rentora-primary/10
+                          hover:border-rentora-muted">
+                <span class="text-2xl">🛒</span>
+                <span class="text-sm font-medium text-white">Rent Items</span>
+                <span class="text-xs text-rentora-muted">Browse and rent products</span>
+              </div>
+            </label>
+
+            <!-- Seller -->
+            <label class="relative cursor-pointer">
+              <input
+                type="radio"
+                formControlName="role"
+                value="seller"
+                class="peer sr-only"
+              />
+              <div class="flex flex-col items-center gap-2 px-4 py-4 rounded-xl
+                          border border-rentora-border bg-rentora-bg text-center
+                          transition peer-checked:border-rentora-primary
+                          peer-checked:bg-rentora-primary/10
+                          hover:border-rentora-muted">
+                <span class="text-2xl">🏪</span>
+                <span class="text-sm font-medium text-white">List Items</span>
+                <span class="text-xs text-rentora-muted">Post products for rent</span>
+              </div>
+            </label>
+
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <button
+          type="submit"
+          [disabled]="isLoading"
+          class="w-full py-3 rounded-lg font-semibold text-white transition
+                 bg-gradient-to-r from-rentora-primary to-rentora-secondary
+                 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">
+          @if (isLoading) {
+            <span>Creating account...</span>
+          } @else {
+            <span>Create Account</span>
+          }
+        </button>
+
+      </form>
+
+      <!-- Divider -->
+      <div class="my-6 border-t border-rentora-border"></div>
+
+      <!-- Login Link -->
+      <p class="text-center text-sm text-rentora-muted">
+        Already have an account?
+        <a routerLink="/login"
+           class="text-rentora-primary hover:underline font-medium ml-1">
+          Log In
+        </a>
+      </p>
+
+    </div>
+  </div>
+</div>

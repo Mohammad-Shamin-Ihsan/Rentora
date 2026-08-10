@@ -1,0 +1,602 @@
+<div class="min-h-screen bg-rentora-bg text-rentora-text">
+
+  <!-- ===================== HERO SECTION ===================== -->
+  <section class="relative overflow-hidden">
+    <div class="max-w-7xl mx-auto px-6 py-8">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Main Hero Banner -->
+        <div class="lg:col-span-2 relative rounded-2xl overflow-hidden min-h-[360px]
+                    bg-gradient-to-br from-gray-900 via-rentora-surface to-rentora-bg
+                    border border-rentora-border">
+
+          <!-- Background image overlay -->
+          <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent z-10"></div>
+
+          <!-- Placeholder background pattern -->
+          <div class="absolute inset-0 opacity-20"
+               style="background-image: radial-gradient(circle at 70% 50%, #8b5cf6 0%, transparent 60%)">
+          </div>
+
+          <!-- Content -->
+          <div class="relative z-20 p-10 flex flex-col justify-center h-full">
+            <!-- Badge -->
+            <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold
+                         bg-gradient-to-r from-rentora-primary to-rentora-secondary
+                         text-white w-fit mb-4">
+              PREMIUM COLLECTION
+            </span>
+
+            <!-- Headline -->
+            <h1 class="text-4xl lg:text-5xl font-bold text-white leading-tight mb-4">
+              Rent the Best.<br/>
+              <span class="text-rentora-primary">Return the Rest.</span>
+            </h1>
+
+            <p class="text-rentora-muted text-base max-w-md mb-8">
+              Experience high-end designer pieces without the long-term commitment.
+              Perfect for any occasion.
+            </p>
+
+            <!-- CTA Buttons -->
+            <div class="flex items-center gap-4">
+              <a routerLink="/browse"
+                 class="px-6 py-3 rounded-xl font-semibold text-white
+                        bg-gradient-to-r from-rentora-primary to-rentora-secondary
+                        hover:opacity-90 transition">
+                Browse Rentals
+              </a>
+              <a routerLink="/import"
+                 class="px-6 py-3 rounded-xl font-semibold text-rentora-muted
+                        border border-rentora-border hover:border-white
+                        hover:text-white transition">
+                Import on Demand
+              </a>
+            </div>
+          </div>
+
+          <!-- Floating product cards at bottom -->
+          <div class="absolute bottom-6 right-6 z-20 flex gap-3">
+            <div class="bg-black/60 backdrop-blur-sm border border-rentora-border
+                        rounded-xl px-4 py-2">
+              <p class="text-xs text-rentora-muted">Starting from</p>
+              <p class="text-white font-bold">৳500 / day</p>
+            </div>
+            <div class="bg-black/60 backdrop-blur-sm border border-rentora-border
+                        rounded-xl px-4 py-2">
+              <p class="text-xs text-rentora-muted">Products</p>
+              <p class="text-white font-bold">500+</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Import on Demand Card -->
+        <div class="rounded-2xl border border-rentora-border bg-gradient-to-br
+                    from-rentora-surface to-rentora-bg p-6 flex flex-col">
+
+          <div class="mb-4">
+            <h3 class="text-lg font-bold text-white mb-1">Import on Demand</h3>
+            <p class="text-sm text-rentora-muted">
+              Get exclusive global gear delivered to your doorstep.
+            </p>
+          </div>
+
+          <!-- Import items list -->
+          <div class="flex-1 space-y-3 mb-6">
+            <!-- Item 1 -->
+            <div class="flex items-center gap-3 p-3 rounded-xl
+                        bg-rentora-bg border border-rentora-border">
+              <div class="w-10 h-10 rounded-lg bg-rentora-primary/20
+                          flex items-center justify-center flex-shrink-0">
+                <span class="text-lg">📷</span>
+              </div>
+              <div class="min-w-0">
+                <p class="text-sm font-medium text-white truncate">RED V-RAPTOR XL</p>
+                <span class="text-xs px-2 py-0.5 rounded-full
+                             bg-emerald-400/10 text-emerald-400">
+                  CUSTOMS CLEARED
+                </span>
+              </div>
+            </div>
+
+            <!-- Item 2 -->
+            <div class="flex items-center gap-3 p-3 rounded-xl
+                        bg-rentora-bg border border-rentora-border">
+              <div class="w-10 h-10 rounded-lg bg-rentora-secondary/20
+                          flex items-center justify-center flex-shrink-0">
+                <span class="text-lg">🎵</span>
+              </div>
+              <div class="min-w-0">
+                <p class="text-sm font-medium text-white truncate">La Marococo Linea Mini</p>
+                <span class="text-xs px-2 py-0.5 rounded-full
+                             bg-yellow-400/10 text-yellow-400">
+                  IN TRANSIT
+                </span>
+              </div>
+            </div>
+
+            <!-- Item 3 -->
+            <div class="flex items-center gap-3 p-3 rounded-xl
+                        bg-rentora-bg border border-rentora-border">
+              <div class="w-10 h-10 rounded-lg bg-rentora-accent/20
+                          flex items-center justify-center flex-shrink-0">
+                <span class="text-lg">🚁</span>
+              </div>
+              <div class="min-w-0">
+                <p class="text-sm font-medium text-white truncate">DJI Inspire 3 Bundle</p>
+                <span class="text-xs px-2 py-0.5 rounded-full
+                             bg-blue-400/10 text-blue-400">
+                  ARRIVED
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- CTA -->
+          <a routerLink="/import"
+             class="w-full py-3 rounded-xl font-semibold text-white text-center
+                    bg-gradient-to-r from-rentora-primary to-rentora-secondary
+                    hover:opacity-90 transition block">
+            Start Import Request
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TRENDING RENTALS ===================== -->
+  <section class="max-w-7xl mx-auto px-6 py-8">
+
+    <!-- Section Header -->
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h2 class="text-2xl font-bold text-white">Trending Rentals</h2>
+        <p class="text-rentora-muted text-sm mt-1">Most popular items this week</p>
+      </div>
+      <a routerLink="/browse"
+         class="flex items-center gap-2 text-sm text-rentora-primary
+                hover:text-white transition font-medium">
+        View All
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 5l7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+
+    <!-- Loading State -->
+    @if (isLoadingProducts) {
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        @for (item of [1,2,3,4]; track item) {
+          <div class="rounded-2xl border border-rentora-border bg-rentora-surface
+                      overflow-hidden animate-pulse">
+            <div class="h-48 bg-rentora-border"></div>
+            <div class="p-4 space-y-3">
+              <div class="h-4 bg-rentora-border rounded w-3/4"></div>
+              <div class="h-3 bg-rentora-border rounded w-1/2"></div>
+              <div class="h-8 bg-rentora-border rounded"></div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Products Grid -->
+    @if (!isLoadingProducts && trendingProducts.length > 0) {
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        @for (product of trendingProducts; track product.id) {
+          <div class="group rounded-2xl border border-rentora-border bg-rentora-surface
+                      overflow-hidden hover:border-rentora-primary/50 transition-all
+                      hover:shadow-lg hover:shadow-rentora-primary/10">
+
+            <!-- Product Image -->
+            <div class="relative h-48 bg-rentora-bg overflow-hidden">
+              <img
+                [src]="getProductImage(product)"
+                [alt]="product.title"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'300\'%3E%3Crect width=\'400\' height=\'300\' fill=\'%2312121a\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%2364748b\' font-size=\'14\'%3ENo Image%3C/text%3E%3C/svg%3E'"
+              />
+
+              <!-- Condition Badge -->
+              <span class="absolute top-3 left-3 text-xs font-semibold px-2 py-1
+                           rounded-full capitalize"
+                    [class]="getConditionColor(product.condition)">
+                {{ product.condition }}
+              </span>
+
+              <!-- Status Badge -->
+              @if (product.status === 'available') {
+                <span class="absolute top-3 right-3 text-xs font-semibold px-2 py-1
+                             rounded-full bg-emerald-400/10 text-emerald-400">
+                  Available
+                </span>
+              }
+            </div>
+
+            <!-- Product Info -->
+            <div class="p-4">
+              <!-- Title -->
+              <h3 class="font-semibold text-white text-sm leading-tight mb-1 truncate">
+                {{ product.title }}
+              </h3>
+
+              <!-- Brand -->
+              @if (product.brand) {
+                <p class="text-xs text-rentora-muted mb-2">{{ product.brand }}</p>
+              }
+
+              <!-- Rating -->
+              @if (product.average_rating > 0) {
+                <div class="flex items-center gap-1 mb-3">
+                  <span class="text-yellow-400 text-xs">★</span>
+                  <span class="text-xs text-rentora-muted">
+                    {{ product.average_rating | number:'1.1-1' }}
+                  </span>
+                </div>
+              }
+
+              <!-- Price and CTA -->
+              <div class="flex items-center justify-between mt-3">
+                <div>
+                  <span class="text-white font-bold text-sm">
+                    {{ formatPrice(product.rental_price_per_day) }}
+                  </span>
+                  <span class="text-rentora-muted text-xs"> / day</span>
+                </div>
+                <a [routerLink]="['/products', product.id]"
+                   class="px-3 py-1.5 rounded-lg text-xs font-semibold text-white
+                          bg-gradient-to-r from-rentora-primary to-rentora-secondary
+                          hover:opacity-90 transition">
+                  Rent Now
+                </a>
+              </div>
+            </div>
+
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Empty State -->
+    @if (!isLoadingProducts && trendingProducts.length === 0) {
+      <div class="text-center py-16 rounded-2xl border border-rentora-border
+                  bg-rentora-surface">
+        <p class="text-4xl mb-4">📦</p>
+        <p class="text-white font-semibold mb-2">No products yet</p>
+        <p class="text-rentora-muted text-sm">
+          Check back soon or submit an import request.
+        </p>
+        <a routerLink="/import"
+           class="inline-block mt-4 px-6 py-2 rounded-lg text-sm font-semibold
+                  text-white bg-rentora-primary hover:opacity-90 transition">
+          Import on Demand
+        </a>
+      </div>
+    }
+
+  </section>
+
+  <!-- ===================== CATEGORY SECTION ===================== -->
+  <section class="max-w-7xl mx-auto px-6 py-8">
+
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h2 class="text-2xl font-bold text-white">Shop by Category</h2>
+        <p class="text-rentora-muted text-sm mt-1">Find exactly what you need</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+
+      <!-- Drones -->
+      <a routerLink="/browse"
+         [queryParams]="{category: 'Drones'}"
+         class="group relative rounded-2xl border border-rentora-border
+                bg-rentora-surface p-6 hover:border-rentora-primary/50
+                transition-all hover:shadow-lg hover:shadow-rentora-primary/10
+                cursor-pointer">
+        <div class="text-4xl mb-3">🚁</div>
+        <h3 class="font-semibold text-white">Drones</h3>
+        <p class="text-xs text-rentora-muted mt-1">Aerial imaging</p>
+        <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition">
+          <svg class="w-4 h-4 text-rentora-primary" fill="none"
+               stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
+      </a>
+
+      <!-- Wedding -->
+      <a routerLink="/browse"
+         [queryParams]="{category: 'Wedding'}"
+         class="group relative rounded-2xl border border-rentora-border
+                bg-rentora-surface p-6 hover:border-rentora-secondary/50
+                transition-all hover:shadow-lg hover:shadow-rentora-secondary/10
+                cursor-pointer">
+        <div class="text-4xl mb-3">👰</div>
+        <h3 class="font-semibold text-white">Wedding</h3>
+        <p class="text-xs text-rentora-muted mt-1">Attire & decor</p>
+        <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition">
+          <svg class="w-4 h-4 text-rentora-secondary" fill="none"
+               stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
+      </a>
+
+      <!-- Cameras -->
+      <a routerLink="/browse"
+         [queryParams]="{category: 'Cameras'}"
+         class="group relative rounded-2xl border border-rentora-border
+                bg-rentora-surface p-6 hover:border-rentora-primary/50
+                transition-all hover:shadow-lg hover:shadow-rentora-primary/10
+                cursor-pointer">
+        <div class="text-4xl mb-3">📷</div>
+        <h3 class="font-semibold text-white">Cameras</h3>
+        <p class="text-xs text-rentora-muted mt-1">Professional gear</p>
+        <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition">
+          <svg class="w-4 h-4 text-rentora-primary" fill="none"
+               stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
+      </a>
+
+      <!-- Audio -->
+      <a routerLink="/browse"
+         [queryParams]="{category: 'Audio'}"
+         class="group relative rounded-2xl border border-rentora-border
+                bg-rentora-surface p-6 hover:border-rentora-accent/50
+                transition-all hover:shadow-lg hover:shadow-rentora-accent/10
+                cursor-pointer">
+        <div class="text-4xl mb-3">🎵</div>
+        <h3 class="font-semibold text-white">Audio</h3>
+        <p class="text-xs text-rentora-muted mt-1">Music equipment</p>
+        <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition">
+          <svg class="w-4 h-4 text-rentora-accent" fill="none"
+               stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
+      </a>
+
+      <!-- Tools -->
+      <a routerLink="/browse"
+         [queryParams]="{category: 'Tools'}"
+         class="group relative rounded-2xl border border-rentora-border
+                bg-rentora-surface p-6 hover:border-rentora-primary/50
+                transition-all hover:shadow-lg hover:shadow-rentora-primary/10
+                cursor-pointer">
+        <div class="text-4xl mb-3">🔧</div>
+        <h3 class="font-semibold text-white">Tools</h3>
+        <p class="text-xs text-rentora-muted mt-1">Industrial & pro</p>
+        <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition">
+          <svg class="w-4 h-4 text-rentora-primary" fill="none"
+               stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
+      </a>
+
+      <!-- Camping -->
+      <a routerLink="/browse"
+         [queryParams]="{category: 'Camping'}"
+         class="group relative rounded-2xl border border-rentora-border
+                bg-rentora-surface p-6 hover:border-emerald-500/50
+                transition-all hover:shadow-lg hover:shadow-emerald-500/10
+                cursor-pointer">
+        <div class="text-4xl mb-3">⛺</div>
+        <h3 class="font-semibold text-white">Camping</h3>
+        <p class="text-xs text-rentora-muted mt-1">Outdoor gear</p>
+        <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition">
+          <svg class="w-4 h-4 text-emerald-400" fill="none"
+               stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
+      </a>
+
+      <!-- Lighting -->
+      <a routerLink="/browse"
+         [queryParams]="{category: 'Lighting'}"
+         class="group relative rounded-2xl border border-rentora-border
+                bg-rentora-surface p-6 hover:border-yellow-500/50
+                transition-all hover:shadow-lg hover:shadow-yellow-500/10
+                cursor-pointer">
+        <div class="text-4xl mb-3">💡</div>
+        <h3 class="font-semibold text-white">Lighting</h3>
+        <p class="text-xs text-rentora-muted mt-1">Studio & events</p>
+        <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition">
+          <svg class="w-4 h-4 text-yellow-400" fill="none"
+               stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
+      </a>
+
+      <!-- Appliances -->
+      <a routerLink="/browse"
+         [queryParams]="{category: 'Appliances'}"
+         class="group relative rounded-2xl border border-rentora-border
+                bg-rentora-surface p-6 hover:border-rentora-primary/50
+                transition-all hover:shadow-lg hover:shadow-rentora-primary/10
+                cursor-pointer">
+        <div class="text-4xl mb-3">🏠</div>
+        <h3 class="font-semibold text-white">Appliances</h3>
+        <p class="text-xs text-rentora-muted mt-1">Home & professional</p>
+        <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition">
+          <svg class="w-4 h-4 text-rentora-primary" fill="none"
+               stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ===================== HOW IT WORKS ===================== -->
+  <section class="max-w-7xl mx-auto px-6 py-12">
+    <div class="text-center mb-10">
+      <h2 class="text-2xl font-bold text-white">How Rentora Works</h2>
+      <p class="text-rentora-muted mt-2 text-sm">Simple steps to rent anything</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+
+      <!-- Step 1 -->
+      <div class="text-center p-6 rounded-2xl border border-rentora-border
+                  bg-rentora-surface">
+        <div class="w-12 h-12 rounded-full bg-rentora-primary/20 flex items-center
+                    justify-center mx-auto mb-4">
+          <span class="text-xl">🔍</span>
+        </div>
+        <div class="text-xs font-bold text-rentora-primary mb-2">STEP 1</div>
+        <h3 class="font-semibold text-white mb-2">Browse</h3>
+        <p class="text-xs text-rentora-muted">
+          Search our catalog and find the perfect item for your needs.
+        </p>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="text-center p-6 rounded-2xl border border-rentora-border
+                  bg-rentora-surface">
+        <div class="w-12 h-12 rounded-full bg-rentora-secondary/20 flex items-center
+                    justify-center mx-auto mb-4">
+          <span class="text-xl">📅</span>
+        </div>
+        <div class="text-xs font-bold text-rentora-secondary mb-2">STEP 2</div>
+        <h3 class="font-semibold text-white mb-2">Book</h3>
+        <p class="text-xs text-rentora-muted">
+          Select your rental dates and confirm your booking instantly.
+        </p>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="text-center p-6 rounded-2xl border border-rentora-border
+                  bg-rentora-surface">
+        <div class="w-12 h-12 rounded-full bg-rentora-accent/20 flex items-center
+                    justify-center mx-auto mb-4">
+          <span class="text-xl">✅</span>
+        </div>
+        <div class="text-xs font-bold text-rentora-accent mb-2">STEP 3</div>
+        <h3 class="font-semibold text-white mb-2">Use</h3>
+        <p class="text-xs text-rentora-muted">
+          Receive the item and enjoy it for your rental period.
+        </p>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="text-center p-6 rounded-2xl border border-rentora-border
+                  bg-rentora-surface">
+        <div class="w-12 h-12 rounded-full bg-emerald-400/20 flex items-center
+                    justify-center mx-auto mb-4">
+          <span class="text-xl">📦</span>
+        </div>
+        <div class="text-xs font-bold text-emerald-400 mb-2">STEP 4</div>
+        <h3 class="font-semibold text-white mb-2">Return</h3>
+        <p class="text-xs text-rentora-muted">
+          Return the item and get your security deposit back.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="border-t border-rentora-border mt-8">
+    <div class="max-w-7xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+
+        <!-- Brand -->
+        <div>
+          <h3 class="text-xl font-bold text-white mb-3">Rentora</h3>
+          <p class="text-sm text-rentora-muted leading-relaxed">
+            Elevate your experience with access to the world's finest luxury rentals.
+            From high-fashion events to professional-grade technology.
+          </p>
+        </div>
+
+        <!-- Marketplace -->
+        <div>
+          <h4 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">
+            Marketplace
+          </h4>
+          <ul class="space-y-2">
+            <li><a routerLink="/"       class="text-sm text-rentora-muted hover:text-white transition">About Us</a></li>
+            <li><a routerLink="/"       class="text-sm text-rentora-muted hover:text-white transition">How It Works</a></li>
+            <li><a routerLink="/"       class="text-sm text-rentora-muted hover:text-white transition">Insurance</a></li>
+            <li><a routerLink="/"       class="text-sm text-rentora-muted hover:text-white transition">Sustainability</a></li>
+          </ul>
+        </div>
+
+        <!-- Account -->
+        <div>
+          <h4 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">
+            Account
+          </h4>
+          <ul class="space-y-2">
+            <li><a routerLink="/profile" class="text-sm text-rentora-muted hover:text-white transition">My Profile</a></li>
+            <li><a routerLink="/profile" class="text-sm text-rentora-muted hover:text-white transition">Order Tracking</a></li>
+            <li><a routerLink="/profile" class="text-sm text-rentora-muted hover:text-white transition">Returns</a></li>
+            <li><a routerLink="/browse"  class="text-sm text-rentora-muted hover:text-white transition">Rentals Bag</a></li>
+          </ul>
+        </div>
+
+        <!-- Newsletter -->
+        <div>
+          <h4 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">
+            Stay Updated
+          </h4>
+          <p class="text-sm text-rentora-muted mb-4">
+            Get notified about new premium arrivals.
+          </p>
+          <div class="flex gap-2">
+            <input
+              type="email"
+              placeholder="Your Email"
+              class="flex-1 px-3 py-2 rounded-lg bg-rentora-bg border
+                     border-rentora-border text-white text-sm
+                     placeholder-rentora-muted outline-none
+                     focus:border-rentora-primary transition"
+            />
+            <button class="px-4 py-2 rounded-lg bg-rentora-primary
+                           text-white text-sm font-semibold
+                           hover:opacity-90 transition">
+              →
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom Bar -->
+      <div class="border-t border-rentora-border mt-10 pt-6
+                  flex flex-col md:flex-row items-center justify-between gap-4">
+        <p class="text-sm text-rentora-muted">
+          © 2024 Rentora. Luxury Rentals. Elevate your experience.
+        </p>
+        <div class="flex items-center gap-6">
+          <a routerLink="/" class="text-sm text-rentora-muted hover:text-white transition">
+            Bangladesh (BDT)
+          </a>
+          <a routerLink="/" class="text-sm text-rentora-muted hover:text-white transition">
+            Help Center
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+</div>

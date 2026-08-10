@@ -1,0 +1,102 @@
+<div class="min-h-screen bg-rentora-bg flex items-center justify-center px-4">
+  <div class="w-full max-w-md">
+
+    <!-- Logo -->
+    <div class="text-center mb-8">
+      <a routerLink="/" class="text-3xl font-bold text-white tracking-tight">
+        Rentora
+      </a>
+      <p class="text-rentora-muted mt-2 text-sm">
+        Welcome back. Sign in to continue.
+      </p>
+    </div>
+
+    <!-- Card -->
+    <div class="bg-rentora-surface border border-rentora-border rounded-2xl p-8">
+
+      <h2 class="text-xl font-semibold text-white mb-6">Log In</h2>
+
+      <!-- Error Message -->
+      @if (errorMessage) {
+        <div class="mb-4 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+          {{ errorMessage }}
+        </div>
+      }
+
+      <!-- Form -->
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+        <!-- Email -->
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-rentora-text mb-1">
+            Email Address
+          </label>
+          <input
+            type="email"
+            formControlName="email"
+            placeholder="you@example.com"
+            class="w-full px-4 py-3 rounded-lg bg-rentora-bg border text-white
+                   placeholder-rentora-muted outline-none transition
+                   focus:border-rentora-primary
+                   [&.ng-invalid.ng-touched]:border-red-500"
+          />
+          @if (email.invalid && email.touched) {
+            <p class="mt-1 text-xs text-red-400">
+              @if (email.errors?.['required']) { Email is required. }
+              @if (email.errors?.['email'])    { Enter a valid email. }
+            </p>
+          }
+        </div>
+
+        <!-- Password -->
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-rentora-text mb-1">
+            Password
+          </label>
+          <input
+            type="password"
+            formControlName="password"
+            placeholder="Enter your password"
+            class="w-full px-4 py-3 rounded-lg bg-rentora-bg border text-white
+                   placeholder-rentora-muted outline-none transition
+                   focus:border-rentora-primary
+                   [&.ng-invalid.ng-touched]:border-red-500"
+          />
+          @if (password.invalid && password.touched) {
+            <p class="mt-1 text-xs text-red-400">
+              Password is required.
+            </p>
+          }
+        </div>
+
+        <!-- Submit -->
+        <button
+          type="submit"
+          [disabled]="isLoading"
+          class="w-full py-3 rounded-lg font-semibold text-white transition
+                 bg-gradient-to-r from-rentora-primary to-rentora-secondary
+                 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">
+          @if (isLoading) {
+            <span>Signing in...</span>
+          } @else {
+            <span>Log In</span>
+          }
+        </button>
+
+      </form>
+
+      <!-- Divider -->
+      <div class="my-6 border-t border-rentora-border"></div>
+
+      <!-- Register Link -->
+      <p class="text-center text-sm text-rentora-muted">
+        Don't have an account?
+        <a routerLink="/register"
+           class="text-rentora-primary hover:underline font-medium ml-1">
+          Create Account
+        </a>
+      </p>
+
+    </div>
+  </div>
+</div>

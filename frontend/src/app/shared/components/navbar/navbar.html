@@ -1,0 +1,40 @@
+<nav class="fixed top-0 left-0 right-0 z-50 bg-rentora-surface border-b border-rentora-border px-6 py-4">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+
+    <!-- Logo -->
+    <a routerLink="/" class="text-2xl font-bold text-white">
+      Rentora
+    </a>
+
+    <!-- Nav Links -->
+    <div class="hidden md:flex items-center gap-6">
+      <a routerLink="/"       class="text-rentora-muted hover:text-white transition">Home</a>
+      <a routerLink="/browse" class="text-rentora-muted hover:text-white transition">Browse</a>
+      <a routerLink="/import" class="text-rentora-muted hover:text-white transition">Import</a>
+    </div>
+
+    <!-- Right Side -->
+    <div class="flex items-center gap-4">
+      @if (authService.isLoggedIn) {
+        <a routerLink="/profile"
+           class="text-rentora-muted hover:text-white transition">
+          {{ authService.currentUser?.full_name }}
+        </a>
+        <button
+          (click)="authService.logout()"
+          class="px-4 py-2 rounded-lg bg-rentora-border text-white hover:bg-opacity-80 transition">
+          Logout
+        </button>
+      } @else {
+        <a routerLink="/login"
+           class="px-4 py-2 rounded-lg bg-rentora-primary text-white hover:bg-opacity-80 transition">
+          Log In
+        </a>
+      }
+    </div>
+
+  </div>
+</nav>
+
+<!-- Spacer so content doesn't go under fixed navbar -->
+<div class="h-16"></div>

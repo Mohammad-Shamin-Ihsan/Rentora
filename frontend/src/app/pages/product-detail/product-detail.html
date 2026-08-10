@@ -1,0 +1,542 @@
+<div class="min-h-screen bg-rentora-bg text-rentora-text">
+
+  <!-- Loading -->
+  @if (isLoading) {
+    <div class="max-w-7xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 animate-pulse">
+        <div class="space-y-4">
+          <div class="h-96 bg-rentora-surface rounded-2xl"></div>
+          <div class="flex gap-3">
+            @for (i of [1,2,3]; track i) {
+              <div class="h-20 w-20 bg-rentora-surface rounded-xl"></div>
+            }
+          </div>
+        </div>
+        <div class="space-y-4">
+          <div class="h-8 bg-rentora-surface rounded w-3/4"></div>
+          <div class="h-4 bg-rentora-surface rounded w-1/2"></div>
+          <div class="h-12 bg-rentora-surface rounded w-1/3"></div>
+          <div class="h-64 bg-rentora-surface rounded-2xl"></div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Error -->
+  @if (!isLoading && errorMessage) {
+    <div class="max-w-7xl mx-auto px-6 py-20 text-center">
+      <p class="text-5xl mb-4">😕</p>
+      <p class="text-white text-xl font-semibold mb-2">{{ errorMessage }}</p>
+      <a routerLink="/browse"
+         class="inline-block mt-4 px-6 py-2 rounded-xl text-sm font-semibold
+                text-white bg-rentora-primary hover:opacity-90 transition">
+        Back to Browse
+      </a>
+    </div>
+  }
+
+  @if (!isLoading && product) {
+    <div class="max-w-7xl mx-auto px-6 py-8">
+
+      <!-- Breadcrumb -->
+      <nav class="flex items-center gap-2 text-sm text-rentora-muted mb-6">
+        <a routerLink="/"      class="hover:text-white transition">Home</a>
+        <span>/</span>
+        <a routerLink="/browse" class="hover:text-white transition">Browse</a>
+        <span>/</span>
+        @if (product.category_name) {
+          <a [routerLink]="['/browse']"
+             [queryParams]="{category: product.category_name}"
+             class="hover:text-white transition">
+            {{ product.category_name }}
+          </a>
+          <span>/</span>
+        }
+        <span class="text-white truncate max-w-xs">{{ product.title }}</span>
+      </nav>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+
+        <!-- ── LEFT: Images + Specs + Reviews ── -->
+        <div>
+
+          <!-- Main Image -->
+          <div class="relative rounded-2xl overflow-hidden bg-rentora-surface
+                      border border-rentora-border h-96 mb-4">
+            @if (currentImage) {
+              <img [src]="currentImage" [alt]="product.title"
+                   class="w-full h-full object-cover"/>
+            } @else {
+              <div class="w-full h-full flex items-center justify-center">
+                <span class="text-8xl opacity-20">📦</span>
+              </div>
+            }
+
+            <!-- Condition badge -->
+            <span class="absolute top-4 left-4 px-3 py-1 rounded-full text-xs
+                         font-semibold bg-black/60 text-white backdrop-blur-sm">
+              {{ getConditionLabel(product.condition) }}
+            </span>
+          </div>
+
+          <!-- Thumbnail Gallery -->
+          @if (product.images && product.images.length > 1) {
+            <div class="flex gap-3 mb-8">
+              @for (img of product.images; track $index) {
+                <button
+                  (click)="selectImage($index)"
+                  class="w-20 h-20 rounded-xl overflow-hidden border-2 transition flex-shrink-0"
+                  [class]="selectedImageIndex === $index
+                    ? 'border-rentora-primary'
+                    : 'border-rentora-border hover:border-rentora-muted'">
+                  <img [src]="img" [alt]="product.title"
+                       class="w-full h-full object-cover"/>
+                </button>
+              }
+            </div>
+          }
+
+          <!-- Technical Specs -->
+          @if (specsEntries.length > 0) {
+            <div class="rounded-2xl border border-rentora-border
+                        bg-rentora-surface p-6 mb-6">
+              <h2 class="text-lg font-bold text-white mb-4">
+                Technical Specifications
+              </h2>
+              <div class="grid grid-cols-2 gap-3">
+                @for (spec of specsEntries; track spec.key) {
+                  <div class="bg-rentora-bg rounded-xl p-3">
+                    <p class="text-xs text-rentora-muted capitalize mb-1">
+                      {{ spec.key.replace('_', ' ') }}
+                    </p>
+                    <p class="text-sm font-medium text-white">
+                      {{ spec.value }}
+                    </p>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Description -->
+          <div class="rounded-2xl border border-rentora-border
+                      bg-rentora-surface p-6 mb-6">
+            <h2 class="text-lg font-bold text-white mb-3">About this item</h2>
+            <p class="text-rentora-muted text-sm leading-relaxed">
+              {{ product.description }}
+            </p>
+          </div>
+
+          <!-- ── Reviews Section ── -->
+          <div class="rounded-2xl border border-rentora-border
+                      bg-rentora-surface p-6">
+
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-lg font-bold text-white">Customer Reviews</h2>
+              @if (product.average_rating > 0) {
+                <div class="flex items-center gap-2">
+                  <div class="flex">
+                    @for (star of [1,2,3,4,5]; track star) {
+                      <svg class="w-4 h-4"
+                           [class]="star <= product.average_rating
+                             ? 'text-yellow-400' : 'text-rentora-border'"
+                           fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07
+                                 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588
+                                 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921
+                                 -.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8
+                                 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1
+                                 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461
+                                 a1 1 0 00.951-.69l1.07-3.292z"/>
+                      </svg>
+                    }
+                  </div>
+                  <span class="text-white font-semibold">
+                    {{ product.average_rating | number:'1.1-1' }}
+                  </span>
+                  <span class="text-rentora-muted text-sm">
+                    ({{ product.reviews?.length || 0 }} reviews)
+                  </span>
+                </div>
+              }
+            </div>
+
+            <!-- Review List -->
+            @if (product.reviews && product.reviews.length > 0) {
+              <div class="space-y-4 mb-6">
+                @for (review of product.reviews; track review.id) {
+                  <div class="border-b border-rentora-border pb-4 last:border-0">
+                    <div class="flex items-center justify-between mb-2">
+                      <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-rentora-primary/20
+                                    flex items-center justify-center">
+                          <span class="text-xs font-bold text-rentora-primary">
+                            {{ review.reviewer_name?.charAt(0) || '?' }}
+                          </span>
+                        </div>
+                        <span class="text-sm font-medium text-white">
+                          {{ review.reviewer_name || 'Anonymous' }}
+                        </span>
+                      </div>
+                      <div class="flex">
+                        @for (star of [1,2,3,4,5]; track star) {
+                          <svg class="w-3 h-3"
+                               [class]="star <= review.rating
+                                 ? 'text-yellow-400' : 'text-rentora-border'"
+                               fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07
+                                     3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588
+                                     1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921
+                                     -.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8
+                                     2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1
+                                     0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461
+                                     a1 1 0 00.951-.69l1.07-3.292z"/>
+                          </svg>
+                        }
+                      </div>
+                    </div>
+                    @if (review.review_text) {
+                      <p class="text-sm text-rentora-muted ml-10">
+                        {{ review.review_text }}
+                      </p>
+                    }
+                    <p class="text-xs text-rentora-border ml-10 mt-1">
+                      {{ review.created_at | date:'mediumDate' }}
+                    </p>
+                  </div>
+                }
+              </div>
+            } @else {
+              <p class="text-rentora-muted text-sm mb-6">
+                No reviews yet. Be the first to review this product.
+              </p>
+            }
+
+            <!-- Write Review (only for logged in users) -->
+            @if (authService.isLoggedIn && !reviewSubmitted) {
+              <div class="border-t border-rentora-border pt-5">
+                <h3 class="text-sm font-semibold text-white mb-3">
+                  Write a Review
+                </h3>
+
+                <!-- Star Rating Input -->
+                <div class="flex gap-1 mb-3">
+                  @for (star of [1,2,3,4,5]; track star) {
+                    <button
+                      (click)="setRating(star)"
+                      (mouseenter)="hoverRating = star"
+                      (mouseleave)="hoverRating = 0"
+                      class="transition">
+                      <svg class="w-7 h-7 transition"
+                           [class]="getStarClass(star)"
+                           fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07
+                                 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588
+                                 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921
+                                 -.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8
+                                 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1
+                                 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461
+                                 a1 1 0 00.951-.69l1.07-3.292z"/>
+                      </svg>
+                    </button>
+                  }
+                  @if (newRating > 0) {
+                    <span class="text-sm text-rentora-muted ml-2 self-center">
+                      {{ ['','Poor','Fair','Good','Great','Excellent'][newRating] }}
+                    </span>
+                  }
+                </div>
+
+                <textarea
+                  [(ngModel)]="newReviewText"
+                  placeholder="Share your experience..."
+                  rows="3"
+                  class="w-full px-4 py-3 rounded-xl bg-rentora-bg border
+                         border-rentora-border text-white text-sm
+                         placeholder-rentora-muted outline-none
+                         focus:border-rentora-primary transition resize-none mb-3">
+                </textarea>
+
+                <button
+                  (click)="submitReview()"
+                  [disabled]="newRating === 0"
+                  class="px-5 py-2 rounded-xl text-sm font-semibold text-white
+                         bg-gradient-to-r from-rentora-primary to-rentora-secondary
+                         hover:opacity-90 disabled:opacity-40
+                         disabled:cursor-not-allowed transition">
+                  Submit Review
+                </button>
+              </div>
+            }
+
+            @if (reviewSubmitted) {
+              <div class="border-t border-rentora-border pt-5">
+                <p class="text-emerald-400 text-sm">
+                  ✅ Thank you for your review!
+                </p>
+              </div>
+            }
+
+          </div>
+
+        </div>
+
+        <!-- ── RIGHT: Booking Panel ── -->
+        <div class="lg:sticky lg:top-20 h-fit">
+
+          <!-- Product Title -->
+          <div class="mb-6">
+            @if (product.category_name) {
+              <span class="text-xs font-semibold px-3 py-1 rounded-full
+                           bg-rentora-primary/10 text-rentora-primary">
+                {{ product.category_name }}
+              </span>
+            }
+            <h1 class="text-2xl font-bold text-white mt-3 mb-1">
+              {{ product.title }}
+            </h1>
+            @if (product.brand) {
+              <p class="text-rentora-muted text-sm">by {{ product.brand }}</p>
+            }
+
+            <!-- Rating summary -->
+            @if (product.average_rating > 0) {
+              <div class="flex items-center gap-2 mt-2">
+                <div class="flex">
+                  @for (star of [1,2,3,4,5]; track star) {
+                    <svg class="w-4 h-4"
+                         [class]="star <= product.average_rating
+                           ? 'text-yellow-400' : 'text-rentora-border'"
+                         fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07
+                               3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588
+                               1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921
+                               -.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8
+                               2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1
+                               0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461
+                               a1 1 0 00.951-.69l1.07-3.292z"/>
+                    </svg>
+                  }
+                </div>
+                <span class="text-sm text-rentora-muted">
+                  {{ product.average_rating | number:'1.1-1' }}
+                  ({{ product.reviews?.length }} reviews)
+                </span>
+              </div>
+            }
+          </div>
+
+          <!-- Price -->
+          <div class="rounded-2xl border border-rentora-border
+                      bg-rentora-surface p-6 mb-5">
+            <div class="flex items-baseline gap-2 mb-4">
+              <span class="text-3xl font-bold text-white">
+                {{ formatPrice(product.rental_price_per_day) }}
+              </span>
+              <span class="text-rentora-muted">/ day</span>
+            </div>
+
+            <div class="flex gap-4 text-sm">
+              <div class="flex items-center gap-2 text-rentora-muted">
+                <span>🔒</span>
+                <span>
+                  Security deposit:
+                  <span class="text-white font-medium">
+                    {{ formatPrice(product.security_deposit) }}
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Availability Calendar ── -->
+          <div class="rounded-2xl border border-rentora-border
+                      bg-rentora-surface p-6 mb-5">
+
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-semibold text-white">Select Rental Dates</h3>
+              <div class="flex gap-2">
+                <!-- Legend -->
+                <span class="flex items-center gap-1 text-xs text-rentora-muted">
+                  <span class="w-3 h-3 rounded-full bg-emerald-400/20
+                               border border-emerald-400/40 inline-block"></span>
+                  Free
+                </span>
+                <span class="flex items-center gap-1 text-xs text-rentora-muted">
+                  <span class="w-3 h-3 rounded-full bg-red-400/20
+                               border border-red-400/40 inline-block"></span>
+                  Booked
+                </span>
+              </div>
+            </div>
+
+            <!-- Month nav -->
+            <div class="flex items-center justify-between mb-4">
+              <button (click)="prevMonth()"
+                      class="p-2 rounded-lg hover:bg-rentora-bg
+                             text-rentora-muted hover:text-white transition">
+                ‹
+              </button>
+              <span class="text-sm font-semibold text-white">
+                {{ monthLabel }}
+              </span>
+              <button (click)="nextMonth()"
+                      class="p-2 rounded-lg hover:bg-rentora-bg
+                             text-rentora-muted hover:text-white transition">
+                ›
+              </button>
+            </div>
+
+            <!-- Day Labels -->
+            <div class="grid grid-cols-7 gap-1 mb-2">
+              @for (day of ['Su','Mo','Tu','We','Th','Fr','Sa']; track day) {
+                <div class="text-center text-xs text-rentora-muted py-1">
+                  {{ day }}
+                </div>
+              }
+            </div>
+
+            <!-- Calendar Grid -->
+            <div class="grid grid-cols-7 gap-1">
+              @for (day of calendarDays; track $index) {
+                <button
+                  [disabled]="!day.date || day.isBlocked"
+                  (click)="onDayClick(day)"
+                  class="aspect-square rounded-lg text-xs font-medium
+                         flex items-center justify-center transition"
+                  [class]="
+                    !day.date ? 'invisible' :
+                    day.isBlocked && day.isPast ? 'text-rentora-border cursor-not-allowed' :
+                    day.isBlocked && day.reason === 'booked' ? 'bg-red-400/10 text-red-400/50 cursor-not-allowed' :
+                    day.isBlocked ? 'bg-orange-400/10 text-orange-400/50 cursor-not-allowed' :
+                    day.isStart || day.isEnd ? 'bg-rentora-primary text-white' :
+                    day.isInRange ? 'bg-rentora-primary/20 text-rentora-primary' :
+                    'text-white hover:bg-rentora-bg'
+                  ">
+                  {{ day.day }}
+                </button>
+              }
+            </div>
+
+            <!-- Selected range summary -->
+            @if (startDate) {
+              <div class="mt-4 pt-4 border-t border-rentora-border">
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                  <div class="bg-rentora-bg rounded-xl p-3">
+                    <p class="text-xs text-rentora-muted mb-1">Start Date</p>
+                    <p class="text-white font-medium">
+                      {{ formatDate(startDate) }}
+                    </p>
+                  </div>
+                  <div class="bg-rentora-bg rounded-xl p-3">
+                    <p class="text-xs text-rentora-muted mb-1">End Date</p>
+                    <p class="text-white font-medium">
+                      {{ endDate ? formatDate(endDate) : 'Select...' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- ── Cost Summary ── -->
+          @if (startDate && endDate) {
+            <div class="rounded-2xl border border-rentora-border
+                        bg-rentora-surface p-6 mb-5">
+              <h3 class="font-semibold text-white mb-4">Cost Summary</h3>
+              <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-rentora-muted">
+                    {{ formatPrice(product.rental_price_per_day) }} × {{ rentalDays }} days
+                  </span>
+                  <span class="text-white">{{ formatPrice(rentalFee) }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-rentora-muted">Tax (5%)</span>
+                  <span class="text-white">{{ formatPrice(taxAmount) }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-rentora-muted">Security Deposit</span>
+                  <span class="text-white">
+                    {{ formatPrice(product.security_deposit) }}
+                  </span>
+                </div>
+                <div class="border-t border-rentora-border pt-2 mt-2
+                            flex justify-between font-bold">
+                  <span class="text-white">Total Due</span>
+                  <span class="text-rentora-primary text-lg">
+                    {{ formatPrice(totalAmount) }}
+                  </span>
+                </div>
+                <p class="text-xs text-rentora-muted pt-1">
+                  * Deposit refunded after successful return
+                </p>
+              </div>
+            </div>
+          }
+
+          <!-- ── CTA Button ── -->
+          @if (product.status === 'available') {
+            @if (authService.isLoggedIn) {
+              <button
+                [disabled]="!startDate || !endDate"
+                class="w-full py-4 rounded-2xl font-bold text-white text-lg
+                       bg-gradient-to-r from-rentora-primary to-rentora-secondary
+                       hover:opacity-90 disabled:opacity-40
+                       disabled:cursor-not-allowed transition">
+                @if (!startDate || !endDate) {
+                  Select Dates to Continue
+                } @else {
+                  Reserve Now →
+                }
+              </button>
+            } @else {
+              <a routerLink="/login"
+                 class="w-full py-4 rounded-2xl font-bold text-white text-lg
+                        bg-gradient-to-r from-rentora-primary to-rentora-secondary
+                        hover:opacity-90 transition block text-center">
+                Log In to Book
+              </a>
+            }
+          } @else {
+            <!-- Product unavailable — show waitlist -->
+            <div class="rounded-2xl border border-rentora-border
+                        bg-rentora-surface p-5">
+              <p class="text-white font-semibold mb-1">
+                Currently Unavailable
+              </p>
+              <p class="text-rentora-muted text-sm mb-4">
+                Join the waitlist and we'll notify you when it becomes available.
+              </p>
+              @if (!joinedWaitlist) {
+                <div class="flex gap-2">
+                  <input
+                    type="email"
+                    [(ngModel)]="waitlistEmail"
+                    placeholder="Your email"
+                    class="flex-1 px-3 py-2 rounded-xl bg-rentora-bg border
+                           border-rentora-border text-white text-sm
+                           placeholder-rentora-muted outline-none
+                           focus:border-rentora-primary transition"
+                  />
+                  <button
+                    (click)="joinWaitlist()"
+                    class="px-4 py-2 rounded-xl text-sm font-semibold
+                           text-white bg-rentora-primary
+                           hover:opacity-90 transition">
+                    Notify Me
+                  </button>
+                </div>
+              } @else {
+                <p class="text-emerald-400 text-sm">
+                  ✅ You're on the waitlist!
+                </p>
+              }
+            </div>
+          }
+
+        </div>
+      </div>
+    </div>
+  }
+</div>

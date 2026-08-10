@@ -1,0 +1,9 @@
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Card hover lift effect */
+a, div {
+  transition-property: transform, box-shadow, border-color, opacity;
+}

@@ -1,0 +1,402 @@
+<div class="min-h-screen bg-rentora-bg text-rentora-text">
+  <div class="max-w-7xl mx-auto px-6 py-8">
+
+    <!-- ── Page Header ── -->
+    <div class="mb-6">
+      <h1 class="text-3xl font-bold text-white">
+        @if (selectedCategory) { {{ selectedCategory }} }
+        @else { Browse All Rentals }
+      </h1>
+      @if (!isLoading) {
+        <p class="text-rentora-muted text-sm mt-1">
+          {{ totalResults }} products found
+          @if (searchQuery) { for "{{ searchQuery }}" }
+        </p>
+      }
+    </div>
+
+    <!-- ── Search Bar ── -->
+    <div class="relative mb-6">
+      <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-rentora-muted"
+           fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/>
+      </svg>
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (input)="onSearchInput()"
+        placeholder="Search products by name or brand..."
+        class="w-full pl-12 pr-4 py-3 rounded-xl bg-rentora-surface border
+               border-rentora-border text-white placeholder-rentora-muted
+               outline-none focus:border-rentora-primary transition"
+      />
+      @if (searchQuery) {
+        <button (click)="searchQuery = ''; loadProducts()"
+                class="absolute right-4 top-1/2 -translate-y-1/2
+                       text-rentora-muted hover:text-white transition">
+          ✕
+        </button>
+      }
+    </div>
+
+    <div class="flex gap-6">
+
+      <!-- ── Sidebar Filters ── -->
+      <aside class="w-64 flex-shrink-0 hidden lg:block">
+        <div class="bg-rentora-surface border border-rentora-border
+                    rounded-2xl p-5 sticky top-20">
+
+          <!-- Filter Header -->
+          <div class="flex items-center justify-between mb-5">
+            <h2 class="font-semibold text-white">Filters</h2>
+            @if (activeFilterCount > 0) {
+              <button (click)="clearFilters()"
+                      class="text-xs text-rentora-primary hover:underline">
+                Clear all ({{ activeFilterCount }})
+              </button>
+            }
+          </div>
+
+          <!-- Category Filter -->
+          <div class="mb-5">
+            <h3 class="text-xs font-semibold text-rentora-muted uppercase
+                       tracking-wider mb-3">
+              Category
+            </h3>
+            <div class="space-y-1">
+              <button
+                (click)="selectedCategory = ''; applyFilters()"
+                class="w-full text-left px-3 py-2 rounded-lg text-sm transition"
+                [class]="selectedCategory === ''
+                  ? 'bg-rentora-primary/10 text-rentora-primary'
+                  : 'text-rentora-muted hover:text-white hover:bg-rentora-bg'">
+                All Categories
+              </button>
+              @for (cat of categories; track cat.id) {
+                <button
+                  (click)="selectedCategory = cat.name; applyFilters()"
+                  class="w-full text-left px-3 py-2 rounded-lg text-sm transition"
+                  [class]="selectedCategory === cat.name
+                    ? 'bg-rentora-primary/10 text-rentora-primary'
+                    : 'text-rentora-muted hover:text-white hover:bg-rentora-bg'">
+                  {{ cat.name }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Price Range Filter -->
+          <div class="mb-5">
+            <h3 class="text-xs font-semibold text-rentora-muted uppercase
+                       tracking-wider mb-3">
+              Price Range / Day
+            </h3>
+            <div class="flex gap-2">
+              <input
+                type="number"
+                [(ngModel)]="minPrice"
+                placeholder="Min"
+                class="w-full px-3 py-2 rounded-lg bg-rentora-bg border
+                       border-rentora-border text-white text-sm
+                       placeholder-rentora-muted outline-none
+                       focus:border-rentora-primary transition"
+              />
+              <input
+                type="number"
+                [(ngModel)]="maxPrice"
+                placeholder="Max"
+                class="w-full px-3 py-2 rounded-lg bg-rentora-bg border
+                       border-rentora-border text-white text-sm
+                       placeholder-rentora-muted outline-none
+                       focus:border-rentora-primary transition"
+              />
+            </div>
+          </div>
+
+          <!-- Brand Filter -->
+          @if (brands.length > 0) {
+            <div class="mb-5">
+              <h3 class="text-xs font-semibold text-rentora-muted uppercase
+                         tracking-wider mb-3">
+                Brand
+              </h3>
+              <select
+                [(ngModel)]="selectedBrand"
+                class="w-full px-3 py-2 rounded-lg bg-rentora-bg border
+                       border-rentora-border text-white text-sm
+                       outline-none focus:border-rentora-primary transition">
+                <option value="">All Brands</option>
+                @for (brand of brands; track brand) {
+                  <option [value]="brand">{{ brand }}</option>
+                }
+              </select>
+            </div>
+          }
+
+          <!-- Condition Filter -->
+          <div class="mb-6">
+            <h3 class="text-xs font-semibold text-rentora-muted uppercase
+                       tracking-wider mb-3">
+              Condition
+            </h3>
+            <div class="space-y-1">
+              @for (cond of conditions; track cond.value) {
+                <button
+                  (click)="selectedCondition = cond.value; applyFilters()"
+                  class="w-full text-left px-3 py-2 rounded-lg text-sm transition"
+                  [class]="selectedCondition === cond.value
+                    ? 'bg-rentora-primary/10 text-rentora-primary'
+                    : 'text-rentora-muted hover:text-white hover:bg-rentora-bg'">
+                  {{ cond.label }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Apply Button -->
+          <button
+            (click)="applyFilters()"
+            class="w-full py-2.5 rounded-xl text-sm font-semibold text-white
+                   bg-gradient-to-r from-rentora-primary to-rentora-secondary
+                   hover:opacity-90 transition">
+            Apply Filters
+          </button>
+
+        </div>
+      </aside>
+
+      <!-- ── Main Content ── -->
+      <main class="flex-1 min-w-0">
+
+        <!-- Sort Bar -->
+        <div class="flex items-center justify-between mb-5">
+          <!-- Mobile filter toggle -->
+          <button
+            (click)="isMobileFilterOpen = !isMobileFilterOpen"
+            class="lg:hidden flex items-center gap-2 px-4 py-2 rounded-lg
+                   border border-rentora-border text-sm text-white
+                   hover:border-rentora-primary transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2" d="M3 4h18M7 8h10M11 12h6"/>
+            </svg>
+            Filters
+            @if (activeFilterCount > 0) {
+              <span class="bg-rentora-primary text-white text-xs
+                           rounded-full w-5 h-5 flex items-center justify-center">
+                {{ activeFilterCount }}
+              </span>
+            }
+          </button>
+
+          <!-- Sort -->
+          <div class="flex items-center gap-3 ml-auto">
+            <span class="text-sm text-rentora-muted hidden sm:block">Sort by:</span>
+            <select
+              [(ngModel)]="sortBy"
+              (change)="onSortChange()"
+              class="px-3 py-2 rounded-lg bg-rentora-surface border
+                     border-rentora-border text-white text-sm
+                     outline-none focus:border-rentora-primary transition">
+              @for (opt of sortOptions; track opt.value) {
+                <option [value]="opt.value">{{ opt.label }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <!-- Loading Skeleton -->
+        @if (isLoading) {
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+            @for (i of [1,2,3,4,5,6]; track i) {
+              <div class="rounded-2xl border border-rentora-border
+                          bg-rentora-surface overflow-hidden animate-pulse">
+                <div class="h-52 bg-rentora-border"></div>
+                <div class="p-4 space-y-3">
+                  <div class="h-4 bg-rentora-border rounded w-3/4"></div>
+                  <div class="h-3 bg-rentora-border rounded w-1/2"></div>
+                  <div class="h-3 bg-rentora-border rounded w-1/4"></div>
+                  <div class="flex justify-between items-center pt-2">
+                    <div class="h-5 bg-rentora-border rounded w-1/3"></div>
+                    <div class="h-8 bg-rentora-border rounded w-1/4"></div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Products Grid -->
+        @if (!isLoading && products.length > 0) {
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+            @for (product of products; track product.id) {
+              <div class="group rounded-2xl border border-rentora-border
+                          bg-rentora-surface overflow-hidden
+                          hover:border-rentora-primary/50 transition-all
+                          hover:shadow-xl hover:shadow-rentora-primary/10">
+
+                <!-- Image -->
+                <div class="relative h-52 bg-rentora-bg overflow-hidden">
+                  @if (getProductImage(product)) {
+                    <img
+                      [src]="getProductImage(product)"
+                      [alt]="product.title"
+                      class="w-full h-full object-cover
+                             group-hover:scale-105 transition-transform duration-500"
+                    />
+                  } @else {
+                    <div class="w-full h-full flex items-center justify-center">
+                      <span class="text-5xl opacity-20">📦</span>
+                    </div>
+                  }
+
+                  <!-- Condition Badge -->
+                  <span class="absolute top-3 left-3 text-xs font-semibold
+                               px-2 py-1 rounded-full border capitalize"
+                        [class]="getConditionBadge(product.condition)">
+                    {{ product.condition }}
+                  </span>
+
+                  <!-- Status -->
+                  <span class="absolute top-3 right-3 text-xs font-semibold
+                               px-2 py-1 rounded-full
+                               bg-emerald-400/10 text-emerald-400">
+                    Available
+                  </span>
+                </div>
+
+                <!-- Info -->
+                <div class="p-4">
+                  <h3 class="font-semibold text-white text-sm leading-snug
+                             mb-1 line-clamp-2">
+                    {{ product.title }}
+                  </h3>
+
+                  @if (product.brand) {
+                    <p class="text-xs text-rentora-muted mb-2">
+                      {{ product.brand }}
+                    </p>
+                  }
+
+                  @if (product.category_name) {
+                    <span class="inline-block text-xs px-2 py-0.5 rounded-full
+                                 bg-rentora-primary/10 text-rentora-primary mb-3">
+                      {{ product.category_name }}
+                    </span>
+                  }
+
+                  <!-- Rating -->
+                  @if (product.average_rating > 0) {
+                    <div class="flex items-center gap-1 mb-3">
+                      @for (star of [1,2,3,4,5]; track star) {
+                        <svg class="w-3 h-3"
+                             [class]="star <= product.average_rating
+                               ? 'text-yellow-400' : 'text-rentora-border'"
+                             fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07
+                                   3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588
+                                   1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921
+                                   -.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8
+                                   2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1
+                                   0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461
+                                   a1 1 0 00.951-.69l1.07-3.292z"/>
+                        </svg>
+                      }
+                      <span class="text-xs text-rentora-muted ml-1">
+                        {{ product.average_rating | number:'1.1-1' }}
+                      </span>
+                    </div>
+                  }
+
+                  <!-- Price + CTA -->
+                  <div class="flex items-center justify-between mt-3 pt-3
+                              border-t border-rentora-border">
+                    <div>
+                      <span class="text-white font-bold">
+                        {{ formatPrice(product.rental_price_per_day) }}
+                      </span>
+                      <span class="text-rentora-muted text-xs"> / day</span>
+                      <p class="text-xs text-rentora-muted mt-0.5">
+                        Deposit: {{ formatPrice(product.security_deposit) }}
+                      </p>
+                    </div>
+                    <a [routerLink]="['/products', product.id]"
+                       class="px-4 py-2 rounded-xl text-xs font-semibold
+                              text-white bg-gradient-to-r
+                              from-rentora-primary to-rentora-secondary
+                              hover:opacity-90 transition">
+                      Rent Now
+                    </a>
+                  </div>
+                </div>
+
+              </div>
+            }
+          </div>
+
+          <!-- Pagination -->
+          @if (totalPages > 1) {
+            <div class="flex items-center justify-center gap-2 mt-10">
+              <button
+                (click)="goToPage(currentPage - 1)"
+                [disabled]="currentPage === 1"
+                class="px-3 py-2 rounded-lg border border-rentora-border
+                       text-rentora-muted hover:text-white hover:border-white
+                       disabled:opacity-30 disabled:cursor-not-allowed transition">
+                ←
+              </button>
+
+              @for (page of getPages(); track page) {
+                <button
+                  (click)="goToPage(page)"
+                  class="w-9 h-9 rounded-lg text-sm font-medium transition"
+                  [class]="currentPage === page
+                    ? 'bg-rentora-primary text-white'
+                    : 'border border-rentora-border text-rentora-muted hover:text-white'">
+                  {{ page }}
+                </button>
+              }
+
+              <button
+                (click)="goToPage(currentPage + 1)"
+                [disabled]="currentPage === totalPages"
+                class="px-3 py-2 rounded-lg border border-rentora-border
+                       text-rentora-muted hover:text-white hover:border-white
+                       disabled:opacity-30 disabled:cursor-not-allowed transition">
+                →
+              </button>
+            </div>
+          }
+        }
+
+        <!-- Empty State -->
+        @if (!isLoading && products.length === 0) {
+          <div class="text-center py-20 rounded-2xl border border-rentora-border
+                      bg-rentora-surface">
+            <p class="text-5xl mb-4">🔍</p>
+            <p class="text-white font-semibold text-lg mb-2">No products found</p>
+            <p class="text-rentora-muted text-sm mb-6">
+              Try adjusting your filters or search term.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+              <button
+                (click)="clearFilters()"
+                class="px-6 py-2 rounded-xl text-sm font-semibold text-white
+                       bg-rentora-primary hover:opacity-90 transition">
+                Clear Filters
+              </button>
+              <a routerLink="/import"
+                 class="px-6 py-2 rounded-xl text-sm font-semibold
+                        border border-rentora-border text-rentora-muted
+                        hover:text-white hover:border-white transition">
+                Request Import
+              </a>
+            </div>
+          </div>
+        }
+
+      </main>
+    </div>
+  </div>
+</div>
