@@ -2,12 +2,13 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from app.config import settings
 
-# Create engine
+# Create optimized engine for local development
 engine = create_engine(
     settings.database_url,
-    pool_pre_ping=True,      # Check connection before using
-    pool_size=10,
-    max_overflow=20
+    pool_size=20,           # Keep more connections hot
+    max_overflow=10,
+    pool_recycle=3600,
+    pool_timeout=10         # Fail fast instead of hanging
 )
 
 # Session factory
