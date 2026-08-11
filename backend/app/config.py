@@ -8,6 +8,10 @@ class Settings(BaseSettings):
     db_password:    str
     frontend_url:   str = "http://localhost:4200"
 
+    jwt_secret:         str
+    jwt_algorithm:      str = "HS256"
+    jwt_expire_minutes: int = 1440
+
     @property
     def database_url(self) -> str:
         return (

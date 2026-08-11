@@ -4,6 +4,7 @@ from sqlalchemy import text
 from pydantic import BaseModel
 from typing import Optional
 from app.database import get_db
+from app.middleware.auth_middleware import get_current_user
 
 router = APIRouter()
 
@@ -17,8 +18,9 @@ class ReviewCreate(BaseModel):
 
 @router.post("/")
 async def create_review(
-    payload: ReviewCreate,
-    db:      Session = Depends(get_db)
+    payload:      ReviewCreate,
+    current_user: dict = Depends(get_current_user),
+    db:           Session = Depends(get_db)
 ):
     # Validate rating
     if payload.rating < 1 or payload.rating > 5:
@@ -27,7 +29,7 @@ async def create_review(
             detail="Rating must be between 1 and 5"
         )
 
-    # Get customer_id from booking
+    # Get booking and confirm it belongs to the caller
     booking = db.execute(
         text("""
             SELECT customer_id, product_id, status
@@ -41,6 +43,12 @@ async def create_review(
         raise HTTPException(
             status_code=404,
             detail="Booking not found"
+        )
+
+    if str(booking.customer_id) != str(current_user["id"]):
+        raise HTTPException(
+            status_code=403,
+            detail="You can only review your own rentals"
         )
 
     if booking.status != "completed":

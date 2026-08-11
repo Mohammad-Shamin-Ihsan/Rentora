@@ -1,1 +1,109 @@
-<p>profile works!</p>
+<div class="min-h-screen bg-rentora-bg text-rentora-text">
+  <div class="max-w-2xl mx-auto px-6 py-10">
+
+    <h1 class="text-2xl font-bold text-white mb-6">My Profile</h1>
+
+    <!-- Loading -->
+    @if (isLoading) {
+      <div class="bg-rentora-surface border border-rentora-border rounded-2xl p-8 animate-pulse space-y-4">
+        <div class="h-4 bg-rentora-border rounded w-1/3"></div>
+        <div class="h-10 bg-rentora-border rounded"></div>
+        <div class="h-4 bg-rentora-border rounded w-1/3"></div>
+        <div class="h-10 bg-rentora-border rounded"></div>
+      </div>
+    }
+
+    @if (!isLoading && profile) {
+      <div class="bg-rentora-surface border border-rentora-border rounded-2xl p-8">
+
+        @if (errorMessage) {
+          <div class="mb-4 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+            {{ errorMessage }}
+          </div>
+        }
+
+        @if (successMessage) {
+          <div class="mb-4 px-4 py-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm">
+            {{ successMessage }}
+          </div>
+        }
+
+        <form (ngSubmit)="saveProfile()">
+
+          <!-- Full Name -->
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-rentora-text mb-1">Full Name</label>
+            <input
+              type="text"
+              [(ngModel)]="fullName"
+              name="fullName"
+              required
+              class="w-full px-4 py-3 rounded-lg bg-rentora-bg border border-rentora-border
+                     text-white placeholder-rentora-muted outline-none transition
+                     focus:border-rentora-primary"
+            />
+          </div>
+
+          <!-- Email (read-only) -->
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-rentora-text mb-1">Email Address</label>
+            <input
+              type="email"
+              [value]="profile.email"
+              disabled
+              class="w-full px-4 py-3 rounded-lg bg-rentora-bg border border-rentora-border
+                     text-rentora-muted cursor-not-allowed"
+            />
+          </div>
+
+          <!-- Phone Number -->
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-rentora-text mb-1">Phone Number</label>
+            <input
+              type="tel"
+              [(ngModel)]="phoneNumber"
+              name="phoneNumber"
+              placeholder="e.g. +8801XXXXXXXXX"
+              class="w-full px-4 py-3 rounded-lg bg-rentora-bg border border-rentora-border
+                     text-white placeholder-rentora-muted outline-none transition
+                     focus:border-rentora-primary"
+            />
+          </div>
+
+          <!-- Role + Member Since (read-only) -->
+          <div class="grid grid-cols-2 gap-4 mb-6">
+            <div>
+              <p class="text-xs text-rentora-muted uppercase tracking-wider mb-1">Role</p>
+              <p class="text-white capitalize">{{ profile.role }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-rentora-muted uppercase tracking-wider mb-1">Member Since</p>
+              <p class="text-white">{{ formatDate(profile.created_at) }}</p>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            [disabled]="isSaving"
+            class="w-full py-3 rounded-lg font-semibold text-white transition
+                   bg-gradient-to-r from-rentora-primary to-rentora-secondary
+                   hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">
+            @if (isSaving) {
+              <span>Saving...</span>
+            } @else {
+              <span>Save Changes</span>
+            }
+          </button>
+
+        </form>
+      </div>
+    }
+
+    @if (!isLoading && !profile) {
+      <div class="bg-rentora-surface border border-rentora-border rounded-2xl p-8 text-center">
+        <p class="text-rentora-muted text-sm">{{ errorMessage || 'Unable to load profile.' }}</p>
+      </div>
+    }
+
+  </div>
+</div>

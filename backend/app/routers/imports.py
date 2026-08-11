@@ -1,24 +1,104 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import text
+from pydantic import BaseModel
+from typing import Optional
 from app.database import get_db
 from app.middleware.auth_middleware import get_current_user
 
 router = APIRouter()
 
-@router.get("/")
-async def get_my_bookings(
+
+class ImportRequestCreate(BaseModel):
+    product_name:             str
+    description:              Optional[str] = None
+    preferred_duration_days:  Optional[int] = None
+    estimated_budget:         Optional[float] = None
+    additional_requirements:  Optional[str] = None
+
+
+# ─────────────────────────────────────────
+# POST /api/imports/
+# Submit an "Import on Demand" request
+# ─────────────────────────────────────────
+@router.post("/")
+async def create_import_request(
+    payload:      ImportRequestCreate,
     current_user: dict = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db:           Session = Depends(get_db)
 ):
-    from sqlalchemy import text
     result = db.execute(
         text("""
-            SELECT b.*, p.title as product_title, p.images
-            FROM public.bookings b
-            LEFT JOIN public.products p ON b.product_id = p.id
-            WHERE b.customer_id = :customer_id
-            ORDER BY b.created_at DESC
+            INSERT INTO public.import_requests
+                (customer_id, product_name, description,
+                 preferred_duration_days, estimated_budget,
+                 additional_requirements, status)
+            VALUES
+                (:customer_id, :product_name, :description,
+                 :preferred_duration_days, :estimated_budget,
+                 :additional_requirements, 'pending')
+            RETURNING *
+        """),
+        {
+            "customer_id":              current_user["id"],
+            "product_name":             payload.product_name,
+            "description":              payload.description,
+            "preferred_duration_days":  payload.preferred_duration_days,
+            "estimated_budget":         payload.estimated_budget,
+            "additional_requirements":  payload.additional_requirements
+        }
+    )
+    db.commit()
+
+    return {
+        "message": "Import request submitted successfully",
+        "data":    dict(result.fetchone()._mapping)
+    }
+
+
+# ─────────────────────────────────────────
+# GET /api/imports/
+# List the current user's own import requests
+# ─────────────────────────────────────────
+@router.get("/")
+async def get_my_import_requests(
+    current_user: dict = Depends(get_current_user),
+    db:           Session = Depends(get_db)
+):
+    result = db.execute(
+        text("""
+            SELECT *
+            FROM public.import_requests
+            WHERE customer_id = :customer_id
+            ORDER BY created_at DESC
         """),
         {"customer_id": current_user["id"]}
     ).fetchall()
+
     return {"data": [dict(row._mapping) for row in result]}
+
+
+# ─────────────────────────────────────────
+# GET /api/imports/{import_id}
+# Get a single import request (owner only)
+# ─────────────────────────────────────────
+@router.get("/{import_id}")
+async def get_import_request(
+    import_id:    str,
+    current_user: dict = Depends(get_current_user),
+    db:           Session = Depends(get_db)
+):
+    result = db.execute(
+        text("SELECT * FROM public.import_requests WHERE id = :id"),
+        {"id": import_id}
+    ).fetchone()
+
+    if not result:
+        raise HTTPException(status_code=404, detail="Import request not found")
+
+    import_request = dict(result._mapping)
+
+    if str(import_request["customer_id"]) != str(current_user["id"]):
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    return import_request

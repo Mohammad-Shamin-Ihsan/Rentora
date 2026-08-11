@@ -65,6 +65,11 @@ export class ProductDetail implements OnInit {
   // Booking summary
   TAX_RATE = 0.05; // 5%
 
+  // Booking submission
+  isBooking       = false;
+  bookingError    = '';
+  bookingConfirmed = false;
+
   // Waitlist
   waitlistEmail  = '';
   joinedWaitlist = false;
@@ -187,6 +192,8 @@ export class ProductDetail implements OnInit {
       this.startDate = day.date;
       this.endDate   = '';
       this.isSelectingEnd = true;
+      this.bookingConfirmed = false;
+      this.bookingError     = '';
     } else if (this.isSelectingEnd) {
       if (day.date < this.startDate) {
         // Clicked before start — reset
@@ -262,6 +269,38 @@ export class ProductDetail implements OnInit {
     return this.rentalFee + this.taxAmount + this.product.security_deposit;
   }
 
+  // ── Booking ────────────────────────────────
+
+  reserveNow() {
+    if (!this.product || !this.startDate || !this.endDate) return;
+
+    this.isBooking       = true;
+    this.bookingError    = '';
+    this.bookingConfirmed = false;
+
+    const payload = {
+      product_id: this.product.id,
+      start_date: this.startDate,
+      end_date:   this.endDate
+    };
+
+    this.http.post<any>(`${this.apiUrl}/bookings/`, payload).subscribe({
+      next: () => {
+        this.isBooking        = false;
+        this.bookingConfirmed = true;
+        this.startDate = '';
+        this.endDate   = '';
+
+        // Refresh availability so the calendar reflects the new booking
+        this.loadAvailability(this.product!.id);
+      },
+      error: (err) => {
+        this.isBooking     = false;
+        this.bookingError  = err.error?.detail || 'Failed to create booking. Please try again.';
+      }
+    });
+  }
+
   formatPrice(price: number): string {
     return '৳' + price.toLocaleString('en-BD');
   }
@@ -287,25 +326,44 @@ export class ProductDetail implements OnInit {
     this.newRating = rating;
   }
 
-   submitReview() {
+  submitReview() {
     if (this.newRating === 0 || !this.product) return;
 
-    // Use our seeded completed booking ID for this mock manual test
-    const payload = {
-      product_id: this.product.id,
-      booking_id: '99999999-9999-9999-9999-999999999999', // Matches the seeded completed booking
-      rating: this.newRating,
-      review_text: this.newReviewText
-    };
+    const productId = this.product.id;
 
-    this.http.post<any>(`${this.apiUrl}/reviews/`, payload).subscribe({
+    // Find one of the current user's completed bookings for this product
+    this.http.get<any>(`${this.apiUrl}/bookings/`).subscribe({
       next: (res) => {
-        this.reviewSubmitted = true;
-        // Reload product details to show the new review instantly
-        this.loadProduct(this.product!.id);
+        const bookings = res.data || [];
+        const completedBooking = bookings.find(
+          (b: any) => b.product_id === productId && b.status === 'completed'
+        );
+
+        if (!completedBooking) {
+          alert('You can only review products from a completed rental.');
+          return;
+        }
+
+        const payload = {
+          product_id: productId,
+          booking_id: completedBooking.id,
+          rating: this.newRating,
+          review_text: this.newReviewText
+        };
+
+        this.http.post<any>(`${this.apiUrl}/reviews/`, payload).subscribe({
+          next: () => {
+            this.reviewSubmitted = true;
+            // Reload product details to show the new review instantly
+            this.loadProduct(productId);
+          },
+          error: (err) => {
+            alert(err.error?.detail || 'Failed to submit review. Note: You can only review completed rentals.');
+          }
+        });
       },
-      error: (err) => {
-        alert(err.error?.detail || 'Failed to submit review. Note: You can only review completed rentals.');
+      error: () => {
+        alert('Could not verify your rental history. Please try again.');
       }
     });
   }

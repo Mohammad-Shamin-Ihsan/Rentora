@@ -35,14 +35,7 @@ export class AuthService {
     return this.http
       .post<any>(`${this.apiUrl}/auth/register`, data)
       .pipe(
-        tap(response => {
-          // Save user to localStorage after registration
-          localStorage.setItem(
-            'rentora_user',
-            JSON.stringify(response.user)
-          );
-          this.currentUserSubject.next(response.user);
-        })
+        tap(response => this.storeSession(response))
       );
   }
 
@@ -50,19 +43,19 @@ export class AuthService {
     return this.http
       .post<any>(`${this.apiUrl}/auth/login`, { email, password })
       .pipe(
-        tap(response => {
-          // Save user to localStorage after login
-          localStorage.setItem(
-            'rentora_user',
-            JSON.stringify(response.user)
-          );
-          this.currentUserSubject.next(response.user);
-        })
+        tap(response => this.storeSession(response))
       );
+  }
+
+  private storeSession(response: { user: User; access_token: string }) {
+    localStorage.setItem('rentora_user', JSON.stringify(response.user));
+    localStorage.setItem('rentora_token', response.access_token);
+    this.currentUserSubject.next(response.user);
   }
 
   logout() {
     localStorage.removeItem('rentora_user');
+    localStorage.removeItem('rentora_token');
     this.currentUserSubject.next(null);
     this.router.navigate(['/']);
   }
@@ -79,8 +72,13 @@ export class AuthService {
     return this.currentUserSubject.value?.role || 'customer';
   }
 
-  // Keep this so interceptor doesn't break (returns null now)
   getToken(): string | null {
-    return null;
+    return localStorage.getItem('rentora_token');
+  }
+
+  // Update the cached user (e.g. after editing the profile) without a re-login
+  updateCachedUser(user: User) {
+    localStorage.setItem('rentora_user', JSON.stringify(user));
+    this.currentUserSubject.next(user);
   }
 }
