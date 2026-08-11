@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -36,7 +36,8 @@ export class Profile implements OnInit {
 
   constructor(
     private http: HttpClient,
-    public  authService: AuthService
+    public  authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -51,10 +52,12 @@ export class Profile implements OnInit {
         this.fullName    = profile.full_name;
         this.phoneNumber = profile.phone_number || '';
         this.isLoading   = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.errorMessage = 'Could not load your profile.';
         this.isLoading     = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -78,10 +81,12 @@ export class Profile implements OnInit {
         if (current) {
           this.authService.updateCachedUser({ ...current, full_name: profile.full_name });
         }
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.isSaving     = false;
         this.errorMessage = err.error?.detail || 'Failed to update profile.';
+        this.cdr.detectChanges();
       }
     });
   }

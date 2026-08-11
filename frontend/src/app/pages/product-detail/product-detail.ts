@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -83,7 +83,8 @@ export class ProductDetail implements OnInit {
   constructor(
     private http:        HttpClient,
     private route:       ActivatedRoute,
-    public  authService: AuthService
+    public  authService: AuthService,
+    private cdr:         ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -99,10 +100,12 @@ export class ProductDetail implements OnInit {
       next: (product) => {
         this.product  = product;
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.errorMessage = 'Product not found.';
         this.isLoading    = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -112,6 +115,7 @@ export class ProductDetail implements OnInit {
       next: (res) => {
         this.blockedDates = res.blocked_dates || [];
         this.buildCalendar();
+        this.cdr.detectChanges();
       }
     });
   }
@@ -290,6 +294,7 @@ export class ProductDetail implements OnInit {
         this.bookingConfirmed = true;
         this.startDate = '';
         this.endDate   = '';
+        this.cdr.detectChanges();
 
         // Refresh availability so the calendar reflects the new booking
         this.loadAvailability(this.product!.id);
@@ -297,6 +302,7 @@ export class ProductDetail implements OnInit {
       error: (err) => {
         this.isBooking     = false;
         this.bookingError  = err.error?.detail || 'Failed to create booking. Please try again.';
+        this.cdr.detectChanges();
       }
     });
   }
@@ -354,6 +360,7 @@ export class ProductDetail implements OnInit {
         this.http.post<any>(`${this.apiUrl}/reviews/`, payload).subscribe({
           next: () => {
             this.reviewSubmitted = true;
+            this.cdr.detectChanges();
             // Reload product details to show the new review instantly
             this.loadProduct(productId);
           },

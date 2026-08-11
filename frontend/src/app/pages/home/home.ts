@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -50,7 +50,7 @@ export class Home implements OnInit {
     { label: 'Import',   path: '/import' }
   ];
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.loadTrendingProducts();
@@ -62,9 +62,11 @@ export class Home implements OnInit {
       next: (res) => {
         this.trendingProducts = res.data || [];
         this.isLoadingProducts = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.isLoadingProducts = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -74,9 +76,11 @@ export class Home implements OnInit {
       next: (res) => {
         this.categories = res.data || [];
         this.isLoadingCategories = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.isLoadingCategories = false;
+        this.cdr.detectChanges();
       }
     });
   }

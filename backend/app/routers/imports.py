@@ -10,11 +10,11 @@ router = APIRouter()
 
 
 class ImportRequestCreate(BaseModel):
-    product_name:             str
-    description:              Optional[str] = None
-    preferred_duration_days:  Optional[int] = None
-    estimated_budget:         Optional[float] = None
-    additional_requirements:  Optional[str] = None
+    product_name:                    str
+    product_description:             Optional[str] = None
+    preferred_rental_duration_days:  int
+    estimated_budget:                float
+    additional_requirements:         Optional[str] = None
 
 
 # ─────────────────────────────────────────
@@ -30,22 +30,22 @@ async def create_import_request(
     result = db.execute(
         text("""
             INSERT INTO public.import_requests
-                (customer_id, product_name, description,
-                 preferred_duration_days, estimated_budget,
+                (customer_id, product_name, product_description,
+                 preferred_rental_duration_days, estimated_budget,
                  additional_requirements, status)
             VALUES
-                (:customer_id, :product_name, :description,
-                 :preferred_duration_days, :estimated_budget,
+                (:customer_id, :product_name, :product_description,
+                 :preferred_rental_duration_days, :estimated_budget,
                  :additional_requirements, 'pending')
             RETURNING *
         """),
         {
-            "customer_id":              current_user["id"],
-            "product_name":             payload.product_name,
-            "description":              payload.description,
-            "preferred_duration_days":  payload.preferred_duration_days,
-            "estimated_budget":         payload.estimated_budget,
-            "additional_requirements":  payload.additional_requirements
+            "customer_id":                      current_user["id"],
+            "product_name":                     payload.product_name,
+            "product_description":              payload.product_description,
+            "preferred_rental_duration_days":    payload.preferred_rental_duration_days,
+            "estimated_budget":                 payload.estimated_budget,
+            "additional_requirements":          payload.additional_requirements
         }
     )
     db.commit()

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -80,7 +80,8 @@ export class Browse implements OnInit {
   constructor(
     private http:  HttpClient,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private cdr:   ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -126,22 +127,30 @@ export class Browse implements OnInit {
         this.totalResults = res.total      || 0;
         this.totalPages  = res.total_pages || 1;
         this.isLoading   = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
 
   loadCategories() {
     this.http.get<any>(`${this.apiUrl}/products/categories`).subscribe({
-      next: (res) => this.categories = res.data || []
+      next: (res) => {
+        this.categories = res.data || [];
+        this.cdr.detectChanges();
+      }
     });
   }
 
   loadBrands() {
     this.http.get<any>(`${this.apiUrl}/products/meta/brands`).subscribe({
-      next: (res) => this.brands = res.data || []
+      next: (res) => {
+        this.brands = res.data || [];
+        this.cdr.detectChanges();
+      }
     });
   }
 

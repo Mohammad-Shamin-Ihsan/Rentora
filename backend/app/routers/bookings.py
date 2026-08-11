@@ -133,10 +133,10 @@ async def create_booking(
         text("""
             INSERT INTO public.bookings
                 (product_id, customer_id, start_date, end_date,
-                 rental_fee, tax_amount, security_deposit, total_amount, status)
+                 total_rental_fee, tax, security_deposit, total_amount, status)
             VALUES
                 (:product_id, :customer_id, :start_date, :end_date,
-                 :rental_fee, :tax_amount, :security_deposit, :total_amount, 'confirmed')
+                 :total_rental_fee, :tax, :security_deposit, :total_amount, 'confirmed')
             RETURNING *
         """),
         {
@@ -144,8 +144,8 @@ async def create_booking(
             "customer_id":      current_user["id"],
             "start_date":       payload.start_date,
             "end_date":         payload.end_date,
-            "rental_fee":       rental_fee,
-            "tax_amount":       tax_amount,
+            "total_rental_fee": rental_fee,
+            "tax":              tax_amount,
             "security_deposit": security_deposit,
             "total_amount":     total_amount
         }
