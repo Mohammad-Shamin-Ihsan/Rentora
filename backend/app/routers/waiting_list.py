@@ -1,16 +1,20 @@
 """
 Routes for Module 2 / Part 4: Waiting List Management.
 
-  POST   /products/{product_id}/waiting-list             -> join
-  DELETE /products/{product_id}/waiting-list             -> cancel / leave
-  GET    /products/{product_id}/waiting-list/status      -> check own status
-  GET    /products/{product_id}/waiting-list             -> list all pending (admin)
-  POST   /products/{product_id}/waiting-list/notify      -> trigger notifications when product becomes available
+Supports two styles:
+1. Product-nested routes:
+   - POST   /products/{product_id}/waiting-list             -> join
+   - DELETE /products/{product_id}/waiting-list             -> cancel / leave
+   - GET    /products/{product_id}/waiting-list/status      -> check status
+2. Flat routes (requested in flow):
+   - POST   /waiting-list/join?product_id={id}              -> join
+   - GET    /waiting-list/position?product_id={id}          -> check status/position
+   - DELETE /waiting-list/cancel?product_id={id}            -> cancel / leave
 """
 
-from typing import List
+from typing import List, Optional
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Query
 from sqlalchemy.orm import Session
 
 from .. import schemas
@@ -18,8 +22,8 @@ from ..database import get_db
 from ..crud import waiting_list as wl_crud
 from ..auth import get_current_user_id
 
-router = APIRouter(prefix="/products/{product_id}/waiting-list", tags=["Waiting List"])
-
+# 1. Product-nested router
+router = APIRouter(prefix="/products/{product_id}/waiting-list", tags=["Waiting List (Nested)"])
 
 @router.post(
     "",
@@ -33,10 +37,6 @@ def join_waiting_list(
     db: Session = Depends(get_db),
     current_user_id: int = Depends(get_current_user_id),
 ):
-    """
-    Adds the current user to the waiting list for `product_id`.
-    Returns the created entry including their queue position.
-    """
     return wl_crud.join_waiting_list(db, product_id, current_user_id, payload)
 
 
@@ -50,7 +50,6 @@ def cancel_waiting_list(
     db: Session = Depends(get_db),
     current_user_id: int = Depends(get_current_user_id),
 ):
-    """Removes the current user's pending entry from the waiting list."""
     return wl_crud.cancel_waiting_list(db, product_id, current_user_id)
 
 
@@ -64,7 +63,6 @@ def get_waiting_list_status(
     db: Session = Depends(get_db),
     current_user_id: int = Depends(get_current_user_id),
 ):
-    """Returns whether the user is on the list and their queue position."""
     return wl_crud.get_waiting_list_status(db, product_id, current_user_id)
 
 
@@ -77,7 +75,6 @@ def list_waiting_list(
     product_id: int,
     db: Session = Depends(get_db),
 ):
-    """Returns the full ordered queue for a product. No auth needed for demo."""
     return wl_crud.list_waiting_list(db, product_id)
 
 
@@ -90,10 +87,50 @@ def notify_waiting_list(
     product_id: int,
     db: Session = Depends(get_db),
 ):
-    """
-    Triggers notifications (in-app + email if configured) for all pending
-    users on the waiting list for this product.
-    Call this endpoint when a product's status changes to 'available'.
-    No auth for demo — in production restrict to admin/warehouse staff role.
-    """
     return wl_crud.notify_next_in_queue(db, product_id)
+
+
+# 2. Flat router
+flat_router = APIRouter(prefix="/waiting-list", tags=["Waiting List (Flat)"])
+
+@flat_router.post(
+    "/join",
+    response_model=schemas.WaitingListEntry,
+    status_code=status.HTTP_201_CREATED,
+    summary="Join the waiting list (Flat style)",
+)
+def join_flat(
+    product_id: int = Query(..., description="ID of the product to wait for"),
+    payload: Optional[schemas.WaitingListJoin] = None,
+    db: Session = Depends(get_db),
+    current_user_id: int = Depends(get_current_user_id),
+):
+    if payload is None:
+        payload = schemas.WaitingListJoin()
+    return wl_crud.join_waiting_list(db, product_id, current_user_id, payload)
+
+
+@flat_router.get(
+    "/position",
+    response_model=schemas.WaitingListStatus,
+    summary="Check waiting list status and queue position (Flat style)",
+)
+def get_position_flat(
+    product_id: int = Query(..., description="ID of the product"),
+    db: Session = Depends(get_db),
+    current_user_id: int = Depends(get_current_user_id),
+):
+    return wl_crud.get_waiting_list_status(db, product_id, current_user_id)
+
+
+@flat_router.delete(
+    "/cancel",
+    status_code=status.HTTP_200_OK,
+    summary="Leave the waiting list (Flat style)",
+)
+def cancel_flat(
+    product_id: int = Query(..., description="ID of the product to stop waiting for"),
+    db: Session = Depends(get_db),
+    current_user_id: int = Depends(get_current_user_id),
+):
+    return wl_crud.cancel_waiting_list(db, product_id, current_user_id)

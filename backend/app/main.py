@@ -14,6 +14,7 @@ app.add_middleware(
 
 app.include_router(reviews.router)
 app.include_router(waiting_list.router)
+app.include_router(waiting_list.flat_router)
 
 
 @app.get("/health")

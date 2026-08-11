@@ -11,15 +11,10 @@ import {
 /**
  * Service for Module 2 / Part 4 — Waiting List Management.
  *
- * Talks to:
- *   POST   /products/{id}/waiting-list          → join
- *   DELETE /products/{id}/waiting-list          → cancel
- *   GET    /products/{id}/waiting-list/status   → check own status
- *   GET    /products/{id}/waiting-list          → list all pending
- *   POST   /products/{id}/waiting-list/notify   → trigger notifications
- *
- * Auth note: uses the same X-Debug-User-Id header as the reviews service.
- * Replace with a real Authorization header once Module 1 Part 1 is built.
+ * Connects to flat endpoints:
+ *   POST   /waiting-list/join?product_id={id}          → join
+ *   GET    /waiting-list/position?product_id={id}      → status / position
+ *   DELETE /waiting-list/cancel?product_id={id}        → cancel / leave
  */
 @Injectable({ providedIn: 'root' })
 export class WaitingListService {
@@ -27,10 +22,10 @@ export class WaitingListService {
 
   constructor(private http: HttpClient) {}
 
-  /** Check if the current user is on the waiting list for a product. */
+  /** Check if the current user is on the waiting list for a product and their position. */
   getStatus(productId: number, userId: number): Observable<WaitingListStatus> {
     return this.http.get<WaitingListStatus>(
-      `${this.baseUrl}/products/${productId}/waiting-list/status`,
+      `${this.baseUrl}/waiting-list/position?product_id=${productId}`,
       { headers: this.authHeaders(userId) }
     );
   }
@@ -42,7 +37,7 @@ export class WaitingListService {
     payload: WaitingListJoinRequest = {}
   ): Observable<WaitingListEntry> {
     return this.http.post<WaitingListEntry>(
-      `${this.baseUrl}/products/${productId}/waiting-list`,
+      `${this.baseUrl}/waiting-list/join?product_id=${productId}`,
       payload,
       { headers: this.authHeaders(userId) }
     );
@@ -51,7 +46,7 @@ export class WaitingListService {
   /** Leave / cancel from the waiting list. */
   cancel(productId: number, userId: number): Observable<{ message: string; id: number }> {
     return this.http.delete<{ message: string; id: number }>(
-      `${this.baseUrl}/products/${productId}/waiting-list`,
+      `${this.baseUrl}/waiting-list/cancel?product_id=${productId}`,
       { headers: this.authHeaders(userId) }
     );
   }
