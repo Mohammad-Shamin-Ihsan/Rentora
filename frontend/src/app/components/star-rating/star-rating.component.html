@@ -1,0 +1,26 @@
+<div
+  class="flex items-center gap-0.5"
+  [attr.role]="readOnly ? 'img' : 'radiogroup'"
+  [attr.aria-label]="rating + ' out of 5 stars'"
+>
+  <button
+    *ngFor="let star of stars"
+    type="button"
+    [disabled]="readOnly"
+    [attr.aria-label]="star + ' star' + (star > 1 ? 's' : '')"
+    (click)="onClick(star)"
+    (mouseenter)="onEnter(star)"
+    (mouseleave)="onLeave()"
+    class="rounded transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-500"
+    [class.cursor-default]="readOnly"
+    [class.cursor-pointer]="!readOnly"
+    [class.hover:scale-110]="!readOnly"
+  >
+    <lucide-angular
+      [img]="starIcon"
+      [size]="size"
+      [strokeWidth]="1.5"
+      [class]="isFilled(star) ? 'fill-[#f6b8a6] text-[#f6b8a6]' : 'fill-transparent text-zinc-600'"
+    ></lucide-angular>
+  </button>
+</div>

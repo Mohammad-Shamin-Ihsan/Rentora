@@ -1,0 +1,37 @@
+<form
+  [formGroup]="form"
+  (ngSubmit)="onSubmit()"
+  class="rounded-2xl border border-white/5 bg-[#211a29] p-6"
+>
+  <p class="text-sm font-semibold text-white">Rate this rental</p>
+  <p class="mt-1 text-xs text-zinc-400">
+    Your review helps other renters pick the right gear.
+  </p>
+
+  <div class="mt-4">
+    <app-star-rating
+      [rating]="form.value.rating"
+      [readOnly]="false"
+      [size]="26"
+      (ratingChange)="setRating($event)"
+    ></app-star-rating>
+  </div>
+
+  <textarea
+    formControlName="reviewText"
+    placeholder="How was the product's condition, and would you rent it again?"
+    rows="3"
+    maxlength="2000"
+    class="mt-4 w-full resize-none rounded-xl border border-white/10 bg-black/30 p-3 text-sm text-white placeholder:text-zinc-500 focus:border-fuchsia-500 focus:outline-none"
+  ></textarea>
+
+  <p *ngIf="errorMessage" class="mt-2 text-xs text-red-400">{{ errorMessage }}</p>
+
+  <button
+    type="submit"
+    [disabled]="submitting"
+    class="mt-4 w-full rounded-full bg-gradient-to-r from-fuchsia-600 via-fuchsia-500 to-orange-500 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+  >
+    {{ submitting ? 'Submitting...' : 'Submit Review' }}
+  </button>
+</form>

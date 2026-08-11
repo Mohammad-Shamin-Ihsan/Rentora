@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+*.egg-info/
+.env
+
+# Node / Angular
+node_modules/
+dist/
+.angular/
+
+# Editor / OS
+.vscode/
+.DS_Store
+
+# Temporary folders
+temp_waiting_list/
