@@ -3,11 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .routers import reviews, waiting_list
 
-app = FastAPI(title="Rentora API — Module 1 Part 4 + Module 2 Part 4")
+app = FastAPI(title="Rentora API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:4200", "http://localhost:4201", "*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
