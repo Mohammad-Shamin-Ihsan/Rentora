@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { ProductReviewsDemoComponent } from './pages/product-reviews-demo/product-reviews-demo.component';
+import { ProductWaitingListDemoComponent } from './pages/product-waiting-list-demo/product-waiting-list-demo.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [ProductReviewsDemoComponent],
-  templateUrl: './app.component.html',
+  imports: [ProductWaitingListDemoComponent],
+  template: '<app-product-waiting-list-demo></app-product-waiting-list-demo>',
 })
 export class AppComponent {}

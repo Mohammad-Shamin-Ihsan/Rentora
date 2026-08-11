@@ -14,6 +14,3 @@ dist/
 # Editor / OS
 .vscode/
 .DS_Store
-
-# Temporary folders
-temp_waiting_list/

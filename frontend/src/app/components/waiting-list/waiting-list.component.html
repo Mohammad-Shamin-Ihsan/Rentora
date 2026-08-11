@@ -1,0 +1,127 @@
+<section class="wl-card" [class.wl-card--on-list]="status?.on_list">
+
+  <!-- ── Header ── -->
+  <div class="wl-header">
+    <div class="wl-icon-wrap">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round"
+           stroke-linejoin="round" class="wl-icon">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+    </div>
+    <div>
+      <h3 class="wl-title">Waiting List</h3>
+      <p class="wl-subtitle">
+        <span *ngIf="status?.pending_count !== undefined" class="wl-count-badge">
+          {{ status!.pending_count }} {{ status!.pending_count === 1 ? 'person' : 'people' }} waiting
+        </span>
+        <span *ngIf="status?.pending_count === undefined">Loading…</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- ── Loading skeleton ── -->
+  <div *ngIf="loading" class="wl-skeleton">
+    <div class="wl-skeleton-bar"></div>
+    <div class="wl-skeleton-bar wl-skeleton-bar--short"></div>
+  </div>
+
+  <!-- ── Error ── -->
+  <div *ngIf="!loading && errorMessage" class="wl-error">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="2" class="wl-error-icon">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+      <line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    {{ errorMessage }}
+  </div>
+
+  <!-- ── Already on the list ── -->
+  <div *ngIf="!loading && !errorMessage && status?.on_list" class="wl-on-list">
+
+    <div class="wl-queue-badge">
+      <span class="wl-queue-num">#{{ status!.entry?.queue_position ?? '—' }}</span>
+      <span class="wl-queue-label">in queue</span>
+    </div>
+
+    <p class="wl-on-list-text">
+      You're on the waiting list!
+      <span *ngIf="status!.entry?.status === 'notified'" class="wl-notified-chip">
+        ✉&nbsp;Notified
+      </span>
+      We'll notify you by email as soon as this product becomes available.
+    </p>
+
+    <p class="wl-joined-at">
+      Joined: {{ status!.entry?.joined_at | date:'mediumDate' }}
+    </p>
+
+    <button
+      id="btn-leave-waiting-list"
+      class="wl-btn wl-btn--danger"
+      [disabled]="actionLoading"
+      (click)="leave()">
+      <span *ngIf="!actionLoading">Leave Waiting List</span>
+      <span *ngIf="actionLoading" class="wl-spinner"></span>
+    </button>
+  </div>
+
+  <!-- ── Not on the list ── -->
+  <div *ngIf="!loading && !errorMessage && !status?.on_list">
+    <p class="wl-not-on-list-text">
+      This product is currently <strong>unavailable</strong>.
+      Join the waiting list and we'll notify you the moment it's back in stock.
+    </p>
+
+    <button
+      id="btn-join-waiting-list"
+      class="wl-btn wl-btn--primary"
+      [disabled]="actionLoading"
+      (click)="join()">
+      <span *ngIf="!actionLoading">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+             stroke-linejoin="round" class="wl-btn-icon">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Notify Me When Available
+      </span>
+      <span *ngIf="actionLoading" class="wl-spinner"></span>
+    </button>
+  </div>
+
+  <!-- ── Success toast ── -->
+  <div *ngIf="successMessage" class="wl-toast">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="2.5" class="wl-toast-icon">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+    {{ successMessage }}
+  </div>
+
+  <!-- ── Admin: queue list (collapsible) ── -->
+  <div *ngIf="showAdminPanel && queueEntries.length > 0" class="wl-admin-panel">
+    <button class="wl-admin-toggle" (click)="adminExpanded = !adminExpanded">
+      {{ adminExpanded ? '▾' : '▸' }} Admin: View Full Queue ({{ queueEntries.length }})
+    </button>
+    <div *ngIf="adminExpanded" class="wl-admin-list">
+      <div *ngFor="let e of queueEntries; let i = index" class="wl-admin-row">
+        <span class="wl-admin-pos">#{{ i + 1 }}</span>
+        <span class="wl-admin-uid">User #{{ e.user_id }}</span>
+        <span class="wl-admin-date">{{ e.joined_at | date:'shortDate' }}</span>
+        <span class="wl-admin-status" [class]="'wl-chip wl-chip--' + e.status">
+          {{ e.status }}
+        </span>
+      </div>
+
+      <button id="btn-notify-all" class="wl-btn wl-btn--notify" (click)="notifyAll()" [disabled]="actionLoading">
+        <span *ngIf="!actionLoading">📢 Send Availability Notifications</span>
+        <span *ngIf="actionLoading" class="wl-spinner"></span>
+      </button>
+    </div>
+  </div>
+
+</section>

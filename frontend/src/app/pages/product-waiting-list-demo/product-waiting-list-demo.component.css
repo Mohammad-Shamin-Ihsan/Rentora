@@ -1,0 +1,320 @@
+/* ================================================================
+   Demo Page — Waiting List Management (Module 2 / Part 4)
+   ================================================================ */
+
+/* Font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:host, .demo-page {
+  display: block;
+  min-height: 100vh;
+  background: #0a0a0f;
+  font-family: 'Inter', sans-serif;
+  color: #e2e8f0;
+}
+
+/* ── Page header ─────────────────────────────────────────── */
+.demo-header {
+  background: linear-gradient(135deg, #13131f 0%, #1a0a2e 100%);
+  border-bottom: 1px solid rgba(139, 92, 246, 0.15);
+  padding: 2.5rem 1.5rem;
+}
+.demo-header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+.demo-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.demo-brand-logo {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: white;
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+}
+.demo-brand-name {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #7c3aed;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.demo-module-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #a78bfa;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.demo-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 0.5rem;
+  letter-spacing: -0.02em;
+}
+.demo-desc {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  max-width: 600px;
+  line-height: 1.6;
+}
+
+/* ── Main content ─────────────────────────────────────────── */
+.demo-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* ── Product card ─────────────────────────────────────────── */
+.demo-product-card {
+  position: relative;
+  background: #111827;
+  border: 1px solid #1f2937;
+  border-radius: 20px;
+  overflow: hidden;
+}
+.demo-product-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.demo-product-inner {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem;
+}
+.demo-product-img-wrap {
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, #1f2937, #374151);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 3rem;
+}
+.demo-product-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.demo-product-img-fallback {
+  font-size: 2.5rem;
+}
+.demo-product-category {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #7c3aed;
+  margin-bottom: 0.25rem;
+}
+.demo-product-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin-bottom: 0.3rem;
+}
+.demo-product-spec {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-bottom: 0.75rem;
+}
+.demo-product-pricing {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+.demo-product-price {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #a78bfa;
+}
+.demo-product-price-unit {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #6b7280;
+}
+.demo-product-deposit {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+.demo-product-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.demo-status-dot {
+  width: 8px;
+  height: 8px;
+  background: #ef4444;
+  border-radius: 50%;
+  animation: pulse-red 2s ease-in-out infinite;
+}
+@keyframes pulse-red {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.demo-status-label {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+/* ── Two-column layout ────────────────────────────────────── */
+.demo-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+@media (max-width: 768px) {
+  .demo-columns { grid-template-columns: 1fr; }
+}
+.demo-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.demo-col-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+}
+.demo-col-icon {
+  width: 14px;
+  height: 14px;
+}
+
+/* ── User switcher ─────────────────────────────────────────── */
+.demo-switcher {
+  background: #111827;
+  border: 1px solid #1f2937;
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+.demo-switcher-label {
+  font-size: 0.82rem;
+  color: #6b7280;
+  flex-shrink: 0;
+}
+.demo-switcher-btns {
+  display: flex;
+  gap: 0.5rem;
+}
+.demo-switcher-btn {
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid #374151;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.demo-switcher-btn:hover {
+  border-color: #7c3aed;
+  color: #a78bfa;
+}
+.demo-switcher-btn--active {
+  background: rgba(124, 58, 237, 0.2) !important;
+  border-color: #7c3aed !important;
+  color: #a78bfa !important;
+}
+
+/* ── API reference ─────────────────────────────────────────── */
+.demo-api-ref {
+  background: #0d1117;
+  border: 1px solid #1f2937;
+  border-radius: 16px;
+  padding: 1.5rem;
+}
+.demo-api-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #4b5563;
+  margin-bottom: 1rem;
+}
+.demo-api-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.demo-api-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+}
+.demo-api-method {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 2px 8px;
+  border-radius: 4px;
+  width: 56px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.demo-api-method--get    { background: rgba(34,197,94,0.15); color: #4ade80; }
+.demo-api-method--post   { background: rgba(59,130,246,0.15); color: #60a5fa; }
+.demo-api-method--delete { background: rgba(239,68,68,0.15);  color: #f87171; }
+.demo-api-path {
+  font-family: 'Courier New', monospace;
+  font-size: 0.78rem;
+  color: #94a3b8;
+  flex: 1;
+}
+.demo-api-desc {
+  color: #4b5563;
+  font-size: 0.78rem;
+}

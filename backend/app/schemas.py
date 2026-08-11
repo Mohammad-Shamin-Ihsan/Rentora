@@ -1,9 +1,9 @@
 """
-Pydantic schemas for the Ratings & Reviews API.
+Pydantic schemas for the Ratings & Reviews and Waiting List APIs.
 """
 
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Literal
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -49,3 +49,31 @@ class RatingSummary(BaseModel):
     average_rating: float
     review_count: int
     breakdown: dict
+
+
+# ── Waiting List Schemas ──────────────────────────────────────────────────────
+
+class WaitingListJoin(BaseModel):
+    """Request body for joining a product waiting list."""
+    user_email: Optional[str] = Field(
+        None,
+        description="Email for notification. Falls back to the user's registered email.",
+    )
+
+
+class WaitingListEntry(BaseModel):
+    """Represents one row in the waiting_list table."""
+    id: int
+    product_id: int
+    user_id: int
+    joined_at: datetime
+    notified_at: Optional[datetime]
+    status: Literal["pending", "notified", "cancelled"]
+    queue_position: Optional[int] = None   # position in the pending queue
+
+
+class WaitingListStatus(BaseModel):
+    """Lightweight status check: is this user on the waiting list for this product?"""
+    on_list: bool
+    entry: Optional[WaitingListEntry] = None
+    pending_count: int   # how many people are ahead (total pending entries)

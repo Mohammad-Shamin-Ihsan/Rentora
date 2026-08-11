@@ -1,0 +1,161 @@
+/* =========================================================
+   Waiting List Component Styles
+   Uses TailwindCSS utility classes applied via @apply and
+   scoped component-level custom CSS.
+   ========================================================= */
+
+:host {
+  display: block;
+}
+
+/* ── Card ──────────────────────────────────────────────── */
+.wl-card {
+  @apply bg-gray-900 border border-gray-700 rounded-2xl p-6 space-y-5 transition-all duration-300;
+}
+.wl-card--on-list {
+  @apply border-violet-500/60 bg-gray-900/90;
+  box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.25), 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* ── Header ─────────────────────────────────────────────── */
+.wl-header {
+  @apply flex items-center gap-4;
+}
+.wl-icon-wrap {
+  @apply flex-shrink-0 w-11 h-11 rounded-xl bg-violet-500/15 flex items-center justify-center;
+}
+.wl-icon {
+  @apply w-5 h-5 text-violet-400;
+}
+.wl-title {
+  @apply text-white font-semibold text-lg leading-tight;
+}
+.wl-subtitle {
+  @apply text-sm text-gray-400 mt-0.5;
+}
+.wl-count-badge {
+  @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-500/15 text-amber-300 border border-amber-500/25;
+}
+
+/* ── Skeleton ────────────────────────────────────────────── */
+.wl-skeleton {
+  @apply space-y-3 animate-pulse;
+}
+.wl-skeleton-bar {
+  @apply h-4 bg-gray-700 rounded-full w-full;
+}
+.wl-skeleton-bar--short {
+  @apply w-2/3;
+}
+
+/* ── Error ───────────────────────────────────────────────── */
+.wl-error {
+  @apply flex items-center gap-2 text-sm text-red-400 bg-red-900/20 border border-red-700/30 rounded-xl px-4 py-3;
+}
+.wl-error-icon {
+  @apply w-4 h-4 flex-shrink-0;
+}
+
+/* ── On-List state ───────────────────────────────────────── */
+.wl-on-list {
+  @apply space-y-4;
+}
+.wl-queue-badge {
+  @apply inline-flex items-baseline gap-1.5 bg-violet-600/20 border border-violet-500/30 rounded-2xl px-5 py-3;
+}
+.wl-queue-num {
+  @apply text-3xl font-bold text-violet-300 leading-none;
+}
+.wl-queue-label {
+  @apply text-sm text-violet-400 font-medium;
+}
+.wl-on-list-text {
+  @apply text-gray-300 text-sm leading-relaxed;
+}
+.wl-notified-chip {
+  @apply ml-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/20;
+}
+.wl-joined-at {
+  @apply text-xs text-gray-500;
+}
+
+/* ── Not-on-list state ───────────────────────────────────── */
+.wl-not-on-list-text {
+  @apply text-gray-400 text-sm leading-relaxed;
+}
+
+/* ── Buttons ─────────────────────────────────────────────── */
+.wl-btn {
+  @apply w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl
+         font-semibold text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+.wl-btn--primary {
+  @apply bg-violet-600 hover:bg-violet-500 text-white shadow-lg shadow-violet-900/50
+         hover:shadow-violet-700/50 hover:-translate-y-px active:translate-y-0;
+}
+.wl-btn--danger {
+  @apply bg-transparent border border-red-600/50 text-red-400 hover:bg-red-600/10 hover:border-red-500;
+}
+.wl-btn--notify {
+  @apply mt-4 bg-emerald-700/80 hover:bg-emerald-600 text-white border border-emerald-600/50;
+}
+.wl-btn-icon {
+  @apply w-4 h-4;
+}
+
+/* ── Spinner ─────────────────────────────────────────────── */
+.wl-spinner {
+  @apply inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full;
+  animation: wl-spin 0.7s linear infinite;
+}
+@keyframes wl-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Success toast ───────────────────────────────────────── */
+.wl-toast {
+  @apply flex items-center gap-2 text-sm text-emerald-300 bg-emerald-900/20
+         border border-emerald-700/30 rounded-xl px-4 py-3;
+  animation: wl-fade-in 0.3s ease-out forwards;
+}
+@keyframes wl-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.wl-toast-icon {
+  @apply w-4 h-4 text-emerald-400 flex-shrink-0;
+}
+
+/* ── Admin panel ─────────────────────────────────────────── */
+.wl-admin-panel {
+  @apply border-t border-gray-700/60 pt-4 space-y-3;
+}
+.wl-admin-toggle {
+  @apply text-xs text-gray-500 hover:text-gray-300 transition-colors cursor-pointer select-none;
+  background: none;
+  border: none;
+  padding: 0;
+}
+.wl-admin-list {
+  @apply space-y-2;
+}
+.wl-admin-row {
+  @apply flex items-center gap-3 text-xs text-gray-400 bg-gray-800/50 rounded-lg px-3 py-2;
+}
+.wl-admin-pos {
+  @apply font-bold text-violet-300 w-6 shrink-0;
+}
+.wl-admin-uid {
+  @apply flex-1 font-mono;
+}
+.wl-admin-date {
+  @apply text-gray-500;
+}
+
+/* ── Status chips ────────────────────────────────────────── */
+.wl-chip {
+  @apply inline-flex px-2 py-0.5 rounded-full text-xs font-medium;
+}
+.wl-chip--pending  { @apply bg-amber-500/15 text-amber-300; }
+.wl-chip--notified { @apply bg-emerald-500/15 text-emerald-300; }
+.wl-chip--cancelled { @apply bg-gray-500/15 text-gray-400; }

@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers import reviews
+from .routers import reviews, waiting_list
 
-app = FastAPI(title="Rentora API — Ratings & Reviews")
+app = FastAPI(title="Rentora API — Module 1 Part 4 + Module 2 Part 4")
 
 app.add_middleware(
     CORSMiddleware,
@@ -13,6 +13,7 @@ app.add_middleware(
 )
 
 app.include_router(reviews.router)
+app.include_router(waiting_list.router)
 
 
 @app.get("/health")

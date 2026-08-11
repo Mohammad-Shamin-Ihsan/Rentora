@@ -1,0 +1,117 @@
+<!-- product-waiting-list-demo.component.html -->
+<div class="demo-page">
+
+  <!-- ── Page header ── -->
+  <header class="demo-header">
+    <div class="demo-header-inner">
+      <div class="demo-brand">
+        <span class="demo-brand-logo">R</span>
+        <span class="demo-brand-name">Rentora</span>
+      </div>
+      <div class="demo-meta">
+        <span class="demo-module-tag">Module 2 · Part 4</span>
+        <h1 class="demo-title">Waiting List Management</h1>
+        <p class="demo-desc">
+          Join a waiting list for unavailable products and get notified
+          automatically when they become available again.
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <main class="demo-main">
+
+    <!-- ── Product Card (mock) ── -->
+    <section class="demo-product-card">
+      <div class="demo-product-badge">Currently Unavailable</div>
+      <div class="demo-product-inner">
+        <div class="demo-product-img-wrap">
+          <img src="assets/drone-placeholder.svg" alt="DJI Mavic 3"
+               onerror="this.style.display='none'" class="demo-product-img" />
+          <div class="demo-product-img-fallback">🚁</div>
+        </div>
+        <div class="demo-product-info">
+          <p class="demo-product-category">Drones</p>
+          <h2 class="demo-product-name">DJI Mavic 3 Cine Premium Combo</h2>
+          <p class="demo-product-spec">Professional cinema drone · Hasselblad camera · 46-min flight time</p>
+          <div class="demo-product-pricing">
+            <span class="demo-product-price">৳ 149 <span class="demo-product-price-unit">/ day</span></span>
+            <span class="demo-product-deposit">+ ৳ 850 deposit</span>
+          </div>
+          <div class="demo-product-status">
+            <span class="demo-status-dot"></span>
+            <span class="demo-status-label">All units currently rented out</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Two-column layout: Waiting List + Admin Panel ── -->
+    <div class="demo-columns">
+
+      <!-- Customer view -->
+      <div class="demo-col">
+        <div class="demo-col-label">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" class="demo-col-icon">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          Customer View — User #{{ currentUserId }}
+        </div>
+        <app-waiting-list
+          [productId]="productId"
+          [currentUserId]="currentUserId"
+          [showAdminPanel]="false">
+        </app-waiting-list>
+      </div>
+
+      <!-- Admin view -->
+      <div class="demo-col">
+        <div class="demo-col-label">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" class="demo-col-icon">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <path d="M9 9h6M9 12h6M9 15h4"/>
+          </svg>
+          Admin View — Full Queue &amp; Notify
+        </div>
+        <app-waiting-list
+          [productId]="productId"
+          [currentUserId]="adminUserId"
+          [showAdminPanel]="true">
+        </app-waiting-list>
+      </div>
+
+    </div>
+
+    <!-- ── User switcher (for demo) ── -->
+    <section class="demo-switcher">
+      <p class="demo-switcher-label">Switch customer user to test multiple queue positions:</p>
+      <div class="demo-switcher-btns">
+        <button
+          *ngFor="let uid of testUserIds"
+          class="demo-switcher-btn"
+          [class.demo-switcher-btn--active]="currentUserId === uid"
+          (click)="currentUserId = uid">
+          User #{{ uid }}
+        </button>
+      </div>
+    </section>
+
+    <!-- ── API reference ── -->
+    <section class="demo-api-ref">
+      <h3 class="demo-api-title">API Endpoints</h3>
+      <div class="demo-api-grid">
+        <div *ngFor="let ep of apiEndpoints" class="demo-api-row">
+          <span class="demo-api-method" [class]="'demo-api-method--' + ep.method.toLowerCase()">
+            {{ ep.method }}
+          </span>
+          <code class="demo-api-path">{{ ep.path }}</code>
+          <span class="demo-api-desc">{{ ep.desc }}</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
