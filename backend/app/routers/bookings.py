@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from app.database import get_db
 from app.middleware.auth_middleware import get_current_user
 from app.utils.invoice import build_invoice_pdf
+from app.utils.notifications import notify
 
 router = APIRouter()
 
@@ -65,7 +66,7 @@ async def create_booking(
     # Fetch product (server is the source of truth for pricing)
     product = db.execute(
         text("""
-            SELECT id, rental_price_per_day, security_deposit, status
+            SELECT id, title, rental_price_per_day, security_deposit, status
             FROM public.products
             WHERE id = :product_id
         """),
@@ -179,6 +180,13 @@ async def create_booking(
             "ref":        f"MOCK-DEPOSIT-{booking['id']}"
         }
     )
+
+    notify(
+        db, current_user["id"], "Booking confirmed",
+        f'"{product.title}" is booked for {payload.start_date} to {payload.end_date}. '
+        f'Total charged: ৳{total_amount:.2f} (includes a ৳{security_deposit:.2f} refundable deposit).'
+    )
+
     db.commit()
 
     return {
