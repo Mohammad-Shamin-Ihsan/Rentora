@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
-from app.database import test_connection
+from app.database import engine, test_connection
+from app.db_init import init_db_tables
 from app.routers import auth, products, bookings, imports, admin, reviews, waitlist, notifications, cargo, warehouse, wishlist
 
 app = FastAPI(
@@ -33,6 +34,7 @@ app.include_router(wishlist.router,      prefix="/api/wishlist",      tags=["Wis
 @app.on_event("startup")
 async def startup_event():
     test_connection()
+    init_db_tables(engine)
 
 @app.get("/")
 def health_check():

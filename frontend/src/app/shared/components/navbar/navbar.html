@@ -81,7 +81,7 @@
             Admin
           </a>
         }
-        @if (user.role === 'cargo_manager') {
+        @if (user.role === 'cargo_manager' || user.role === 'admin') {
           <a routerLink="/cargo" class="hidden md:inline text-rentora-muted hover:text-white transition">
             Cargo
           </a>
