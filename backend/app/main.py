@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import test_connection
-from app.routers import auth, products, bookings, imports, admin, reviews, waitlist, notifications, cargo, warehouse
+from app.routers import auth, products, bookings, imports, admin, reviews, waitlist, notifications, cargo, warehouse, wishlist
 
 app = FastAPI(
     title="Rentora API",
@@ -28,6 +28,7 @@ app.include_router(waitlist.router,      prefix="/api/waitlist",      tags=["Wai
 app.include_router(notifications.router, prefix="/api/notifications", tags=["Notifications"])
 app.include_router(cargo.router,         prefix="/api/cargo",         tags=["Cargo Tracking"])
 app.include_router(warehouse.router,     prefix="/api/warehouse",     tags=["Warehouse"])
+app.include_router(wishlist.router,      prefix="/api/wishlist",      tags=["Wishlist"])
 
 @app.on_event("startup")
 async def startup_event():

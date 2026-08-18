@@ -81,6 +81,9 @@ export class ProductDetail implements OnInit {
   hoverRating   = 0;
   reviewSubmitted = false;
 
+  // Wishlist
+  isWishlisted = false;
+
   constructor(
     private http:        HttpClient,
     private route:       ActivatedRoute,
@@ -93,6 +96,32 @@ export class ProductDetail implements OnInit {
     if (id) {
       this.loadProduct(id);
       this.loadAvailability(id);
+      this.checkWishlist(id);
+    }
+  }
+
+  checkWishlist(productId: string) {
+    if (!this.authService.isLoggedIn) return;
+    this.http.get<any>(`${this.apiUrl}/wishlist/`).subscribe({
+      next: (res) => {
+        this.isWishlisted = (res.data || []).some((p: any) => p.id === productId);
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  toggleWishlist() {
+    if (!this.product) return;
+    if (!this.authService.isLoggedIn) return;
+
+    if (this.isWishlisted) {
+      this.http.delete(`${this.apiUrl}/wishlist/${this.product.id}`).subscribe({
+        next: () => { this.isWishlisted = false; this.cdr.detectChanges(); }
+      });
+    } else {
+      this.http.post(`${this.apiUrl}/wishlist/`, { product_id: this.product.id }).subscribe({
+        next: () => { this.isWishlisted = true; this.cdr.detectChanges(); }
+      });
     }
   }
 

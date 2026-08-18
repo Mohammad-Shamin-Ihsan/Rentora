@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { RouterLink } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -14,10 +15,18 @@ interface ProfileData {
   created_at:   string;
 }
 
+interface WishlistItem {
+  id:                    string;
+  title:                 string;
+  images:                string[];
+  rental_price_per_day:  number;
+  status:                string;
+}
+
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './profile.html',
   styleUrls: ['./profile.css']
 })
@@ -34,6 +43,9 @@ export class Profile implements OnInit {
   fullName    = '';
   phoneNumber = '';
 
+  wishlist:          WishlistItem[] = [];
+  isLoadingWishlist   = true;
+
   constructor(
     private http: HttpClient,
     public  authService: AuthService,
@@ -42,6 +54,41 @@ export class Profile implements OnInit {
 
   ngOnInit() {
     this.loadProfile();
+    this.loadWishlist();
+  }
+
+  loadWishlist() {
+    this.isLoadingWishlist = true;
+    this.http.get<any>(`${this.apiUrl}/wishlist/`).subscribe({
+      next: (res) => {
+        this.wishlist          = res.data || [];
+        this.isLoadingWishlist = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isLoadingWishlist = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  removeFromWishlist(item: WishlistItem) {
+    this.http.delete(`${this.apiUrl}/wishlist/${item.id}`).subscribe({
+      next: () => {
+        this.wishlist = this.wishlist.filter(w => w.id !== item.id);
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  getWishlistImage(item: WishlistItem): string {
+    if (!item.images || item.images.length === 0) return '';
+    const url = item.images[0];
+    return url.includes('unsplash.com') ? `${url}?auto=format&fit=crop&w=200&q=80` : url;
+  }
+
+  formatPrice(price: number): string {
+    return '৳' + Number(price).toLocaleString('en-BD');
   }
 
   loadProfile() {

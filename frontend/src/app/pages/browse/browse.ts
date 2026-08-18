@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { AuthService } from '../../core/services/auth.service';
 
 interface Product {
   id: string;
@@ -62,6 +63,9 @@ export class Browse implements OnInit {
   // UI state
   isMobileFilterOpen = false;
 
+  // Wishlist
+  wishlistIds = new Set<string>();
+
   conditions = [
     { value: '',          label: 'Any Condition' },
     { value: 'new',       label: 'New' },
@@ -78,15 +82,17 @@ export class Browse implements OnInit {
   ];
 
   constructor(
-    private http:  HttpClient,
-    private route: ActivatedRoute,
-    private router: Router,
-    private cdr:   ChangeDetectorRef
+    private http:        HttpClient,
+    private route:       ActivatedRoute,
+    private router:      Router,
+    private cdr:         ChangeDetectorRef,
+    public  authService: AuthService
   ) {}
 
   ngOnInit() {
     this.loadCategories();
     this.loadBrands();
+    this.loadWishlist();
 
     // Read query params from URL
     this.route.queryParams.subscribe(params => {
@@ -220,6 +226,48 @@ export class Browse implements OnInit {
       'damaged':   'bg-red-400/10 text-red-400 border-red-400/20'
     };
     return map[condition] || 'bg-gray-400/10 text-gray-400';
+  }
+
+  // ── Wishlist ───────────────────────────────
+
+  loadWishlist() {
+    if (!this.authService.isLoggedIn) return;
+    this.http.get<any>(`${this.apiUrl}/wishlist/`).subscribe({
+      next: (res) => {
+        this.wishlistIds = new Set((res.data || []).map((p: any) => p.id));
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  isWishlisted(productId: string): boolean {
+    return this.wishlistIds.has(productId);
+  }
+
+  toggleWishlist(product: Product, event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!this.authService.isLoggedIn) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    if (this.isWishlisted(product.id)) {
+      this.http.delete(`${this.apiUrl}/wishlist/${product.id}`).subscribe({
+        next: () => {
+          this.wishlistIds.delete(product.id);
+          this.cdr.detectChanges();
+        }
+      });
+    } else {
+      this.http.post(`${this.apiUrl}/wishlist/`, { product_id: product.id }).subscribe({
+        next: () => {
+          this.wishlistIds.add(product.id);
+          this.cdr.detectChanges();
+        }
+      });
+    }
   }
 
   get activeFilterCount(): number {

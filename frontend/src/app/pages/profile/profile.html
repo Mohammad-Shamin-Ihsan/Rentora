@@ -105,5 +105,62 @@
       </div>
     }
 
+    <!-- Quick link to rental history -->
+    <a routerLink="/rentals"
+       class="flex items-center justify-between mt-6 px-6 py-4 rounded-2xl
+              border border-rentora-border bg-rentora-surface hover:border-rentora-primary/50 transition">
+      <div>
+        <p class="text-white font-semibold text-sm">Rental History &amp; Invoices</p>
+        <p class="text-rentora-muted text-xs mt-0.5">View past bookings and download invoices</p>
+      </div>
+      <span class="text-rentora-primary text-sm">View →</span>
+    </a>
+
+    <!-- Wishlist -->
+    <div class="mt-8">
+      <h2 class="text-lg font-semibold text-white mb-4">My Wishlist</h2>
+
+      @if (isLoadingWishlist) {
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          @for (i of [1,2,3]; track i) {
+            <div class="rounded-xl border border-rentora-border bg-rentora-surface h-32 animate-pulse"></div>
+          }
+        </div>
+      }
+
+      @if (!isLoadingWishlist && wishlist.length === 0) {
+        <p class="text-rentora-muted text-sm">
+          Nothing saved yet — tap the heart icon on any product to save it here.
+        </p>
+      }
+
+      @if (!isLoadingWishlist && wishlist.length > 0) {
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          @for (item of wishlist; track item.id) {
+            <div class="rounded-xl border border-rentora-border bg-rentora-surface overflow-hidden group">
+              <a [routerLink]="['/products', item.id]" class="block relative h-24 bg-rentora-bg">
+                @if (getWishlistImage(item)) {
+                  <img [src]="getWishlistImage(item)" [alt]="item.title" class="w-full h-full object-cover" />
+                }
+              </a>
+              <div class="p-3">
+                <a [routerLink]="['/products', item.id]"
+                   class="text-xs font-medium text-white line-clamp-1 hover:text-rentora-primary transition">
+                  {{ item.title }}
+                </a>
+                <div class="flex items-center justify-between mt-1">
+                  <span class="text-xs text-rentora-muted">{{ formatPrice(item.rental_price_per_day) }}/day</span>
+                  <button (click)="removeFromWishlist(item)"
+                          class="text-rentora-muted hover:text-red-400 transition text-xs">
+                    ✕
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
   </div>
 </div>
