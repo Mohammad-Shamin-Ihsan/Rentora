@@ -1,1 +1,179 @@
-<p>import works!</p>
+<div class="min-h-screen bg-rentora-bg text-rentora-text">
+  <div class="max-w-3xl mx-auto px-6 py-10">
+
+    <h1 class="text-2xl font-bold text-white mb-1">Import on Demand</h1>
+    <p class="text-rentora-muted text-sm mb-8">
+      Need something expensive we don't stock locally? Tell us what you're after — we'll import it,
+      handle customs, and you just pay a rental fee for the time you need it.
+    </p>
+
+    <!-- Request Form -->
+    <div class="bg-rentora-surface border border-rentora-border rounded-2xl p-6 sm:p-8 mb-10">
+
+      <h2 class="text-lg font-semibold text-white mb-5">Submit a Request</h2>
+
+      @if (errorMessage) {
+        <div class="mb-4 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+          {{ errorMessage }}
+        </div>
+      }
+      @if (successMessage) {
+        <div class="mb-4 px-4 py-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm">
+          {{ successMessage }}
+        </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+        <!-- Product Name -->
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-rentora-text mb-1">
+            What do you need? *
+          </label>
+          <input
+            type="text"
+            formControlName="product_name"
+            placeholder="e.g. RED V-Raptor XL Cinema Camera"
+            class="w-full px-4 py-3 rounded-lg bg-rentora-bg border border-rentora-border
+                   text-white placeholder-rentora-muted outline-none transition
+                   focus:border-rentora-primary [&.ng-invalid.ng-touched]:border-red-500"
+          />
+          @if (product_name.invalid && product_name.touched) {
+            <p class="mt-1 text-xs text-red-400">
+              @if (product_name.errors?.['required'])  { Product name is required. }
+              @if (product_name.errors?.['minlength']) { Please enter at least 3 characters. }
+            </p>
+          }
+        </div>
+
+        <!-- Description -->
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-rentora-text mb-1">
+            Description <span class="text-rentora-muted">(optional)</span>
+          </label>
+          <textarea
+            formControlName="product_description"
+            rows="3"
+            placeholder="Brand, model, specs — anything that helps us source the right item."
+            class="w-full px-4 py-3 rounded-lg bg-rentora-bg border border-rentora-border
+                   text-white placeholder-rentora-muted outline-none transition
+                   focus:border-rentora-primary resize-none"
+          ></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+          <!-- Duration -->
+          <div>
+            <label class="block text-sm font-medium text-rentora-text mb-1">
+              Preferred Rental Duration (days) *
+            </label>
+            <input
+              type="number"
+              formControlName="preferred_rental_duration_days"
+              min="1"
+              class="w-full px-4 py-3 rounded-lg bg-rentora-bg border border-rentora-border
+                     text-white outline-none transition focus:border-rentora-primary
+                     [&.ng-invalid.ng-touched]:border-red-500"
+            />
+            @if (preferred_rental_duration_days.invalid && preferred_rental_duration_days.touched) {
+              <p class="mt-1 text-xs text-red-400">Enter at least 1 day.</p>
+            }
+          </div>
+
+          <!-- Budget -->
+          <div>
+            <label class="block text-sm font-medium text-rentora-text mb-1">
+              Estimated Budget (BDT) *
+            </label>
+            <input
+              type="number"
+              formControlName="estimated_budget"
+              min="1"
+              placeholder="e.g. 100000"
+              class="w-full px-4 py-3 rounded-lg bg-rentora-bg border border-rentora-border
+                     text-white placeholder-rentora-muted outline-none transition
+                     focus:border-rentora-primary [&.ng-invalid.ng-touched]:border-red-500"
+            />
+            @if (estimated_budget.invalid && estimated_budget.touched) {
+              <p class="mt-1 text-xs text-red-400">Enter a valid budget.</p>
+            }
+          </div>
+        </div>
+
+        <!-- Additional Requirements -->
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-rentora-text mb-1">
+            Additional Requirements <span class="text-rentora-muted">(optional)</span>
+          </label>
+          <textarea
+            formControlName="additional_requirements"
+            rows="2"
+            placeholder="Delivery timeline, color, accessories needed, etc."
+            class="w-full px-4 py-3 rounded-lg bg-rentora-bg border border-rentora-border
+                   text-white placeholder-rentora-muted outline-none transition
+                   focus:border-rentora-primary resize-none"
+          ></textarea>
+        </div>
+
+        <button
+          type="submit"
+          [disabled]="isSubmitting"
+          class="w-full py-3 rounded-lg font-semibold text-white transition
+                 bg-gradient-to-r from-rentora-primary to-rentora-secondary
+                 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">
+          @if (isSubmitting) {
+            Submitting…
+          } @else {
+            Submit Request
+          }
+        </button>
+
+      </form>
+    </div>
+
+    <!-- My Requests -->
+    <h2 class="text-lg font-semibold text-white mb-4">Your Import Requests</h2>
+
+    @if (isLoadingRequests) {
+      <div class="space-y-3">
+        @for (i of [1,2]; track i) {
+          <div class="rounded-xl border border-rentora-border bg-rentora-surface p-4 animate-pulse h-20"></div>
+        }
+      </div>
+    }
+
+    @if (!isLoadingRequests && requests.length === 0) {
+      <p class="text-rentora-muted text-sm">You haven't submitted any import requests yet.</p>
+    }
+
+    @if (!isLoadingRequests && requests.length > 0) {
+      <div class="space-y-3">
+        @for (req of requests; track req.id) {
+          <div class="rounded-xl border border-rentora-border bg-rentora-surface p-4">
+            <div class="flex items-start justify-between gap-3 mb-1">
+              <p class="font-semibold text-white">{{ req.product_name }}</p>
+              <span class="text-xs font-semibold px-2 py-1 rounded-full capitalize flex-shrink-0"
+                    [class]="getStatusColor(req.status)">
+                {{ getStatusLabel(req.status) }}
+              </span>
+            </div>
+            @if (req.product_description) {
+              <p class="text-sm text-rentora-muted mb-2">{{ req.product_description }}</p>
+            }
+            <div class="flex flex-wrap gap-x-5 gap-y-1 text-xs text-rentora-muted">
+              <span>Duration: {{ req.preferred_rental_duration_days }} days</span>
+              <span>Budget: {{ formatPrice(req.estimated_budget) }}</span>
+              <span>Submitted: {{ formatDate(req.created_at) }}</span>
+            </div>
+            @if (req.admin_notes) {
+              <div class="mt-3 px-3 py-2 rounded-lg bg-rentora-bg border border-rentora-border">
+                <p class="text-xs text-rentora-muted"><span class="font-semibold text-white">Admin note:</span> {{ req.admin_notes }}</p>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+  </div>
+</div>
