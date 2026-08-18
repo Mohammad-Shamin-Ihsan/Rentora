@@ -71,8 +71,9 @@ export class ProductDetail implements OnInit {
   bookingConfirmed = false;
 
   // Waitlist
-  waitlistEmail  = '';
-  joinedWaitlist = false;
+  joinedWaitlist   = false;
+  isJoiningWaitlist = false;
+  waitlistError    = '';
 
   // Review
   newRating     = 0;
@@ -325,10 +326,24 @@ export class ProductDetail implements OnInit {
   // ── Waitlist ──────────────────────────────
 
   joinWaitlist() {
-    if (!this.waitlistEmail) return;
-    // Will connect to booking/waitlist endpoint in Module 2
-    this.joinedWaitlist = true;
+    if (!this.product) return;
+
+    this.isJoiningWaitlist = true;
+    this.waitlistError     = '';
     this.cdr.detectChanges();
+
+    this.http.post<any>(`${this.apiUrl}/waitlist/`, { product_id: this.product.id }).subscribe({
+      next: () => {
+        this.joinedWaitlist    = true;
+        this.isJoiningWaitlist = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.waitlistError     = err.error?.detail || 'Failed to join waitlist. Please try again.';
+        this.isJoiningWaitlist = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   // ── Reviews ───────────────────────────────

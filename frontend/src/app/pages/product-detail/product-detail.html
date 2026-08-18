@@ -523,29 +523,30 @@
               <p class="text-rentora-muted text-sm mb-4">
                 Join the waitlist and we'll notify you when it becomes available.
               </p>
-              @if (!joinedWaitlist) {
-                <div class="flex gap-2">
-                  <input
-                    type="email"
-                    [(ngModel)]="waitlistEmail"
-                    placeholder="Your email"
-                    class="flex-1 px-3 py-2 rounded-xl bg-rentora-bg border
-                           border-rentora-border text-white text-sm
-                           placeholder-rentora-muted outline-none
-                           focus:border-rentora-primary transition"
-                  />
-                  <button
-                    (click)="joinWaitlist()"
-                    class="px-4 py-2 rounded-xl text-sm font-semibold
-                           text-white bg-rentora-primary
-                           hover:opacity-90 transition">
-                    Notify Me
-                  </button>
+              @if (waitlistError) {
+                <div class="mb-3 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs">
+                  {{ waitlistError }}
                 </div>
-              } @else {
+              }
+              @if (joinedWaitlist) {
                 <p class="text-emerald-400 text-sm">
-                  ✅ You're on the waitlist!
+                  ✅ You're on the waitlist! We'll notify you here when it's available.
                 </p>
+              } @else if (authService.isLoggedIn) {
+                <button
+                  (click)="joinWaitlist()"
+                  [disabled]="isJoiningWaitlist"
+                  class="w-full px-4 py-2 rounded-xl text-sm font-semibold
+                         text-white bg-rentora-primary
+                         hover:opacity-90 transition disabled:opacity-50">
+                  @if (isJoiningWaitlist) { Joining… } @else { Notify Me }
+                </button>
+              } @else {
+                <a routerLink="/login"
+                   class="block w-full text-center px-4 py-2 rounded-xl text-sm font-semibold
+                          text-white bg-rentora-primary hover:opacity-90 transition">
+                  Log In to Join Waitlist
+                </a>
               }
             </div>
           }
