@@ -63,6 +63,11 @@ def init_db_tables(engine):
                     created_at               TIMESTAMPTZ NOT NULL DEFAULT now()
                 );
             """))
+            # The CREATE TABLE above is a no-op against a database that already has a
+            # products table (true for every environment this app actually runs in -
+            # it ships with no migrations, so the table pre-dates this script). This
+            # ALTER is what actually gets review_count onto that existing table.
+            conn.execute(text("ALTER TABLE public.products ADD COLUMN IF NOT EXISTS review_count INTEGER DEFAULT 0;"))
             conn.execute(text("CREATE INDEX IF NOT EXISTS idx_products_category_id ON public.products (category_id);"))
             conn.execute(text("CREATE INDEX IF NOT EXISTS idx_products_status ON public.products (status);"))
 
@@ -103,7 +108,7 @@ def init_db_tables(engine):
                     booking_id             UUID NOT NULL REFERENCES public.bookings(id) ON DELETE CASCADE,
                     amount                 NUMERIC(10, 2) NOT NULL,
                     type                   VARCHAR(50) NOT NULL
-                                           CHECK (type IN ('rental_fee', 'security_deposit', 'refund', 'late_fee', 'damage_penalty')),
+                                           CHECK (type IN ('rental_fee', 'security_deposit', 'import_fee', 'late_fee', 'damage_penalty', 'refund')),
                     status                 VARCHAR(50) NOT NULL
                                            CHECK (status IN ('completed', 'escrow', 'refunded')),
                     transaction_reference  VARCHAR(255),
@@ -149,7 +154,7 @@ def init_db_tables(engine):
                     product_id  UUID NOT NULL REFERENCES public.products(id) ON DELETE CASCADE,
                     customer_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
                     status      VARCHAR(50) NOT NULL DEFAULT 'waiting'
-                                CHECK (status IN ('waiting', 'notified')),
+                                CHECK (status IN ('waiting', 'notified', 'fulfilled', 'expired')),
                     joined_at   TIMESTAMPTZ NOT NULL DEFAULT now()
                 );
             """))
@@ -304,7 +309,7 @@ def init_db_tables(engine):
                     {
                         "title": "DJI Mavic 3 Cine Premium Combo", "brand": "DJI", "category": "Drones",
                         "description": "Professional cinema drone with Hasselblad camera, 5.1K video and a 46-minute max flight time. Comes with the Fly More kit and ND filter set.",
-                        "price": 4500.00, "deposit": 25000.00, "condition": "mint", "rating": 4.9, "reviews": 12,
+                        "price": 4500.00, "deposit": 25000.00, "condition": "excellent", "rating": 4.9, "reviews": 12,
                         "images": ["https://images.unsplash.com/photo-1473968512647-3e447244af8f", "https://images.unsplash.com/photo-1508614999368-9260051292e5"],
                         "specs": '{"sensor": "4/3 CMOS Hasselblad", "bitrate": "Apple ProRes 422 HQ", "max_flight": "46 Min Flight", "video": "5.1K/50fps"}',
                     },
@@ -332,7 +337,7 @@ def init_db_tables(engine):
                     {
                         "title": "Blackmagic Pocket 6K G2", "brand": "Blackmagic Design", "category": "Cameras",
                         "description": "Compact cinema camera shooting 6K RAW with an EF mount, ideal for run-and-gun productions.",
-                        "price": 2800.00, "deposit": 15000.00, "condition": "mint", "rating": 4.9, "reviews": 8,
+                        "price": 2800.00, "deposit": 15000.00, "condition": "excellent", "rating": 4.9, "reviews": 8,
                         "images": ["https://images.unsplash.com/photo-1550009158-9ebf69173e03"],
                         "specs": '{"sensor": "Super 35", "video": "6K RAW", "mount": "EF Mount"}',
                     },
@@ -381,7 +386,7 @@ def init_db_tables(engine):
                     {
                         "title": "Dyson V15 Detect Vacuum", "brand": "Dyson", "category": "Home Appliances",
                         "description": "Laser dust-detection cordless vacuum with powerful suction for a deep, thorough clean.",
-                        "price": 500.00, "deposit": 6000.00, "condition": "mint", "rating": 4.7, "reviews": 10,
+                        "price": 500.00, "deposit": 6000.00, "condition": "excellent", "rating": 4.7, "reviews": 10,
                         "images": ["https://images.unsplash.com/photo-1558317374-067fb5f30001"],
                         "specs": '{"battery_life": "60 min", "features": ["Laser Dust Detect", "HEPA Filtration"]}',
                     },
@@ -430,7 +435,7 @@ def init_db_tables(engine):
                     {
                         "title": "Diamond Tennis Bracelet", "brand": "Tiffany & Co.", "category": "Jewelry",
                         "description": "Classic diamond tennis bracelet in platinum setting, perfect for galas and special occasions.",
-                        "price": 1500.00, "deposit": 50000.00, "condition": "mint", "rating": 5.0, "reviews": 3,
+                        "price": 1500.00, "deposit": 50000.00, "condition": "excellent", "rating": 5.0, "reviews": 3,
                         "images": ["https://images.unsplash.com/photo-1515562141207-7a88fb7ce338"],
                         "specs": '{"metal": "Platinum", "carat_weight": "5ct total"}',
                     },

@@ -12,7 +12,7 @@ router = APIRouter()
 
 VALID_PRODUCT_STATUSES = {"available", "booked", "maintenance", "unavailable"}
 VALID_IMPORT_DECISIONS = {"approved", "rejected", "more_info_needed"}
-VALID_CONDITIONS       = {"new", "mint", "excellent", "good", "fair"}
+VALID_CONDITIONS       = {"new", "excellent", "good", "fair", "damaged"}
 
 
 class ProductStatusUpdate(BaseModel):
@@ -179,7 +179,10 @@ async def create_product(
         {
             "title":                 payload.title,
             "brand":                 payload.brand,
-            "description":           payload.description,
+            # products.description is NOT NULL on the real table; the
+            # frontend form treats it as optional, so coalesce here
+            # rather than push a "required" constraint back up to the UI.
+            "description":           payload.description or "",
             "category_id":           payload.category_id,
             "rental_price_per_day":  payload.rental_price_per_day,
             "security_deposit":      payload.security_deposit,
@@ -260,7 +263,7 @@ async def update_product(
         {
             "title":                 payload.title,
             "brand":                 payload.brand,
-            "description":           payload.description,
+            "description":           payload.description or "",
             "category_id":           payload.category_id,
             "rental_price_per_day":  payload.rental_price_per_day,
             "security_deposit":      payload.security_deposit,
