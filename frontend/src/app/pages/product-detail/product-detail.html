@@ -224,8 +224,8 @@
                   @for (star of [1,2,3,4,5]; track star) {
                     <button
                       (click)="setRating(star)"
-                      (mouseenter)="hoverRating = star"
-                      (mouseleave)="hoverRating = 0"
+                      (mouseenter)="setHoverRating(star)"
+                      (mouseleave)="setHoverRating(0)"
                       class="transition">
                       <svg class="w-7 h-7 transition"
                            [class]="getStarClass(star)"

@@ -15,10 +15,10 @@
 
     <!-- Right Side -->
     <div class="flex items-center gap-4">
-      @if (authService.isLoggedIn) {
+      @if (authService.currentUser$ | async; as user) {
         <a routerLink="/profile"
            class="text-rentora-muted hover:text-white transition">
-          {{ authService.currentUser?.full_name }}
+          {{ user.full_name }}
         </a>
         <button
           (click)="authService.logout()"

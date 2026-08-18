@@ -132,6 +132,7 @@ export class ProductDetail implements OnInit {
 
   selectImage(index: number) {
     this.selectedImageIndex = index;
+    this.cdr.detectChanges();
   }
 
   // ── Calendar ───────────────────────────────
@@ -215,6 +216,7 @@ export class ProductDetail implements OnInit {
     }
 
     this.buildCalendar();
+    this.cdr.detectChanges();
   }
 
   hasBlockedInRange(start: string, end: string): boolean {
@@ -230,6 +232,7 @@ export class ProductDetail implements OnInit {
       this.currentMonth.getMonth() - 1
     );
     this.buildCalendar();
+    this.cdr.detectChanges();
   }
 
   nextMonth() {
@@ -238,6 +241,7 @@ export class ProductDetail implements OnInit {
       this.currentMonth.getMonth() + 1
     );
     this.buildCalendar();
+    this.cdr.detectChanges();
   }
 
   toDateStr(date: Date): string {
@@ -324,12 +328,19 @@ export class ProductDetail implements OnInit {
     if (!this.waitlistEmail) return;
     // Will connect to booking/waitlist endpoint in Module 2
     this.joinedWaitlist = true;
+    this.cdr.detectChanges();
   }
 
   // ── Reviews ───────────────────────────────
 
   setRating(rating: number) {
     this.newRating = rating;
+    this.cdr.detectChanges();
+  }
+
+  setHoverRating(rating: number) {
+    this.hoverRating = rating;
+    this.cdr.detectChanges();
   }
 
   submitReview() {
