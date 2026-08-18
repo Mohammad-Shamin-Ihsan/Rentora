@@ -1,9 +1,11 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { notAdminGuard } from './core/guards/not-admin.guard';
 
 export const routes: Routes = [
   {
     path: '',
+    canActivate: [notAdminGuard],
     loadComponent: () =>
       import('./pages/home/home').then(m => m.Home)
   },
@@ -19,11 +21,13 @@ export const routes: Routes = [
   },
   {
     path: 'browse',
+    canActivate: [notAdminGuard],
     loadComponent: () =>
       import('./pages/browse/browse').then(m => m.Browse)
   },
   {
     path: 'products/:id',
+    canActivate: [notAdminGuard],
     loadComponent: () =>
       import('./pages/product-detail/product-detail')
         .then(m => m.ProductDetail)
@@ -36,15 +40,27 @@ export const routes: Routes = [
   },
   {
     path: 'rentals',
-    canActivate: [authGuard],
+    canActivate: [authGuard, notAdminGuard],
     loadComponent: () =>
       import('./pages/rentals/rentals').then(m => m.Rentals)
   },
   {
     path: 'import',
-    canActivate: [authGuard],
+    canActivate: [authGuard, notAdminGuard],
     loadComponent: () =>
       import('./pages/import/import').then(m => m.Import)
+  },
+  {
+    path: 'sell',
+    canActivate: [authGuard, notAdminGuard],
+    loadComponent: () =>
+      import('./pages/sell/sell').then(m => m.Sell)
+  },
+  {
+    path: 'my-listings',
+    canActivate: [authGuard, notAdminGuard],
+    loadComponent: () =>
+      import('./pages/my-listings/my-listings').then(m => m.MyListings)
   },
   {
     path: 'admin',

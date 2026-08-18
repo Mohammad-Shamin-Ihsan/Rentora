@@ -1,16 +1,20 @@
 <nav class="fixed top-0 left-0 right-0 z-50 bg-rentora-surface border-b border-rentora-border px-6 py-4">
   <div class="max-w-7xl mx-auto flex items-center justify-between">
 
-    <!-- Logo -->
-    <a routerLink="/" class="text-2xl font-bold text-white">
-      Rentora
-    </a>
+    <div class="flex items-center gap-6">
+      <!-- Logo -->
+      <a routerLink="/" class="text-2xl font-bold text-white">
+        Rentora
+      </a>
 
-    <!-- Nav Links -->
-    <div class="hidden md:flex items-center gap-6">
-      <a routerLink="/"       class="text-rentora-muted hover:text-white transition">Home</a>
-      <a routerLink="/browse" class="text-rentora-muted hover:text-white transition">Browse</a>
-      <a routerLink="/import" class="text-rentora-muted hover:text-white transition">Import</a>
+      <!-- Nav Links -->
+      @if ((authService.currentUser$ | async)?.role !== 'admin') {
+        <div class="hidden md:flex items-center gap-6">
+          <a routerLink="/"       class="text-rentora-muted hover:text-white transition">Home</a>
+          <a routerLink="/browse" class="text-rentora-muted hover:text-white transition">Browse</a>
+          <a routerLink="/import" class="text-rentora-muted hover:text-white transition">Import</a>
+        </div>
+      }
     </div>
 
     <!-- Right Side -->
@@ -91,10 +95,22 @@
             Warehouse
           </a>
         }
-        <a routerLink="/rentals"
-           class="hidden md:inline text-rentora-muted hover:text-white transition">
-          My Rentals
-        </a>
+        @if (user.role === 'customer' || user.role === 'seller') {
+          <a routerLink="/sell" class="hidden md:inline text-rentora-muted hover:text-white transition">
+            Sell
+          </a>
+        }
+        @if (user.role === 'seller') {
+          <a routerLink="/my-listings" class="hidden md:inline text-rentora-muted hover:text-white transition">
+            My Listings
+          </a>
+        }
+        @if (user.role !== 'admin') {
+          <a routerLink="/rentals"
+             class="hidden md:inline text-rentora-muted hover:text-white transition">
+            My Rentals
+          </a>
+        }
         <a routerLink="/profile"
            class="text-rentora-muted hover:text-white transition">
           {{ user.full_name }}

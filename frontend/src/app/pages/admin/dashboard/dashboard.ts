@@ -25,11 +25,6 @@ interface DemandRow {
   last_searched_at:   string;
 }
 
-interface Category {
-  id:   string;
-  name: string;
-}
-
 interface Booking {
   id:                     string;
   start_date:             string;
@@ -84,37 +79,6 @@ const EMPTY_RETURN_FORM: ReturnForm = {
   damage_penalty_amount: 0
 };
 
-interface Product {
-  id:                    string;
-  title:                 string;
-  brand:                 string | null;
-  description:           string | null;
-  category_id:           string | null;
-  category_name:         string | null;
-  rental_price_per_day:  number;
-  security_deposit:      number;
-  condition:             string;
-  status:                string;
-  images:                string[] | null;
-}
-
-interface NewProductForm {
-  title:                 string;
-  brand:                 string;
-  description:           string;
-  category_id:           string;
-  rental_price_per_day:  number | null;
-  security_deposit:      number | null;
-  condition:              string;
-  image_url:             string;
-}
-
-const EMPTY_PRODUCT_FORM: NewProductForm = {
-  title: '', brand: '', description: '', category_id: '',
-  rental_price_per_day: null, security_deposit: null,
-  condition: 'good', image_url: ''
-};
-
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -138,7 +102,7 @@ export class Dashboard implements OnInit {
 
   statusFilter: 'pending' | 'all' = 'pending';
 
-  activeTab: 'imports' | 'analytics' | 'listings' | 'rentals' | 'shipments' = 'imports';
+  activeTab: 'imports' | 'analytics' | 'rentals' | 'shipments' = 'imports';
 
   shipments:        Shipment[] = [];
   isLoadingShipments = true;
@@ -148,10 +112,6 @@ export class Dashboard implements OnInit {
   demandRows: DemandRow[] = [];
   isLoadingDemand = true;
 
-  categories: Category[] = [];
-  products: Product[] = [];
-  isLoadingProducts = true;
-
   bookings: Booking[] = [];
   isLoadingBookings = true;
   confirmingBookingId: string | null = null;
@@ -159,13 +119,6 @@ export class Dashboard implements OnInit {
   returnForm: ReturnForm = { ...EMPTY_RETURN_FORM };
   isSubmittingReturn = false;
   bookingActionError = '';
-
-  showNewListingForm = false;
-  editingProductId: string | null = null;   // null = creating, set = editing this product
-  newProduct: NewProductForm = { ...EMPTY_PRODUCT_FORM };
-  isSubmittingProduct = false;
-  listingError = '';
-  listingSuccess = '';
 
   constructor(
     private http: HttpClient,
@@ -176,8 +129,6 @@ export class Dashboard implements OnInit {
     this.loadDashboard();
     this.loadImportRequests();
     this.loadDemandAnalytics();
-    this.loadCategories();
-    this.loadProducts();
     this.loadBookings();
     this.loadShipments();
   }
@@ -321,121 +272,6 @@ export class Dashboard implements OnInit {
     });
   }
 
-  loadCategories() {
-    this.http.get<any>(`${this.apiUrl}/products/categories`).subscribe({
-      next: (res) => {
-        this.categories = res.data || [];
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
-  loadProducts() {
-    this.isLoadingProducts = true;
-    this.http.get<any>(`${this.apiUrl}/admin/products`).subscribe({
-      next: (res) => {
-        this.products = res.data || [];
-        this.isLoadingProducts = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.isLoadingProducts = false;
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
-  openNewListingForm() {
-    this.editingProductId = null;
-    this.newProduct = { ...EMPTY_PRODUCT_FORM };
-    this.listingError = '';
-    this.listingSuccess = '';
-    this.showNewListingForm = true;
-    this.cdr.detectChanges();
-  }
-
-  openEditListingForm(product: Product) {
-    this.editingProductId = product.id;
-    this.newProduct = {
-      title:                product.title,
-      brand:                product.brand || '',
-      description:          product.description || '',
-      category_id:          product.category_id || '',
-      rental_price_per_day: Number(product.rental_price_per_day),
-      security_deposit:     Number(product.security_deposit),
-      condition:            product.condition,
-      image_url:            (product.images && product.images.length > 0) ? product.images[0] : ''
-    };
-    this.listingError = '';
-    this.listingSuccess = '';
-    this.showNewListingForm = true;
-    this.cdr.detectChanges();
-  }
-
-  closeNewListingForm() {
-    this.showNewListingForm = false;
-    this.cdr.detectChanges();
-  }
-
-  submitNewListing() {
-    this.listingError = '';
-
-    if (!this.newProduct.title.trim()) {
-      this.listingError = 'Title is required.';
-      return;
-    }
-    if (!this.newProduct.category_id) {
-      this.listingError = 'Please choose a category.';
-      return;
-    }
-    if (!this.newProduct.rental_price_per_day || this.newProduct.rental_price_per_day <= 0) {
-      this.listingError = 'Rental price must be greater than zero.';
-      return;
-    }
-    if (this.newProduct.security_deposit === null || this.newProduct.security_deposit < 0) {
-      this.listingError = 'Security deposit cannot be negative.';
-      return;
-    }
-
-    this.isSubmittingProduct = true;
-    this.cdr.detectChanges();
-
-    const images = this.newProduct.image_url.trim() ? [this.newProduct.image_url.trim()] : [];
-    const body = {
-      title:                 this.newProduct.title.trim(),
-      brand:                 this.newProduct.brand.trim() || null,
-      description:           this.newProduct.description.trim() || null,
-      category_id:           this.newProduct.category_id,
-      rental_price_per_day:  this.newProduct.rental_price_per_day,
-      security_deposit:      this.newProduct.security_deposit,
-      condition:             this.newProduct.condition,
-      images,
-      technical_specifications: {}
-    };
-
-    const request$ = this.editingProductId
-      ? this.http.patch<any>(`${this.apiUrl}/admin/products/${this.editingProductId}`, body)
-      : this.http.post<any>(`${this.apiUrl}/admin/products`, body);
-
-    request$.subscribe({
-      next: () => {
-        this.isSubmittingProduct = false;
-        this.showNewListingForm = false;
-        this.listingSuccess = this.editingProductId
-          ? `"${this.newProduct.title.trim()}" was updated successfully.`
-          : `"${this.newProduct.title.trim()}" was listed successfully.`;
-        this.editingProductId = null;
-        this.loadProducts();
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        this.listingError = err.error?.detail || 'Failed to save the listing.';
-        this.isSubmittingProduct = false;
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
   loadDemandAnalytics() {
     this.isLoadingDemand = true;
     this.http.get<any>(`${this.apiUrl}/admin/demand-analytics`).subscribe({
@@ -455,7 +291,7 @@ export class Dashboard implements OnInit {
     return Math.max(1, ...this.demandRows.map(r => r.search_count));
   }
 
-  setTab(tab: 'imports' | 'analytics' | 'listings' | 'rentals' | 'shipments') {
+  setTab(tab: 'imports' | 'analytics' | 'rentals' | 'shipments') {
     this.activeTab = tab;
     this.cdr.detectChanges();
   }

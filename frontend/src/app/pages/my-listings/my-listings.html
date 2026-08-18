@@ -1,0 +1,243 @@
+<div class="min-h-screen bg-rentora-bg text-rentora-text">
+  <div class="max-w-4xl mx-auto px-6 py-10">
+
+    @if (!isSeller) {
+      <div class="rounded-2xl border border-rentora-border bg-rentora-surface p-8 text-center">
+        <span class="text-4xl">📦</span>
+        <h1 class="text-xl font-bold text-white mt-3 mb-1">No listings yet</h1>
+        <p class="text-rentora-muted text-sm mb-6">You need to become a seller before you can list products.</p>
+        <a routerLink="/sell"
+           class="inline-block px-6 py-3 rounded-xl font-semibold text-white transition
+                  bg-gradient-to-r from-rentora-primary to-rentora-secondary hover:opacity-90">
+          Become a Seller
+        </a>
+      </div>
+    }
+
+    @if (isSeller) {
+      <h1 class="text-2xl font-bold text-white mb-1">My Listings</h1>
+      <p class="text-rentora-muted text-sm mb-8">
+        Every product you've listed. Rented items are read-only until they're returned — otherwise,
+        toggle between available and under maintenance, or edit and remove them.
+      </p>
+
+      @if (errorMessage) {
+        <div class="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3
+                    text-red-400 text-sm flex items-center justify-between gap-3">
+          <span>{{ errorMessage }}</span>
+          <button (click)="errorMessage = ''" class="text-red-400 hover:text-white transition">✕</button>
+        </div>
+      }
+
+      <!-- Edit Modal -->
+      @if (showEditForm) {
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60"
+             (click)="closeEditForm()">
+          <div class="w-full max-w-lg rounded-2xl border border-rentora-border bg-rentora-surface p-6
+                      max-h-[90vh] overflow-y-auto"
+               (click)="$event.stopPropagation()">
+
+            <div class="flex items-center justify-between mb-5">
+              <h2 class="text-lg font-semibold text-white">Edit Product</h2>
+              <button (click)="closeEditForm()" class="text-rentora-muted hover:text-white transition">✕</button>
+            </div>
+
+            @if (formError) {
+              <div class="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2
+                          text-red-400 text-sm">
+                {{ formError }}
+              </div>
+            }
+
+            <div class="space-y-4">
+              <div>
+                <label class="block text-xs font-semibold text-rentora-muted uppercase tracking-wider mb-1.5">
+                  Title *
+                </label>
+                <input type="text" [(ngModel)]="form.title"
+                       class="w-full px-3 py-2 rounded-lg bg-rentora-bg border border-rentora-border
+                              text-white text-sm placeholder-rentora-muted outline-none
+                              focus:border-rentora-primary transition" />
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-semibold text-rentora-muted uppercase tracking-wider mb-1.5">
+                    Brand
+                  </label>
+                  <input type="text" [(ngModel)]="form.brand"
+                         class="w-full px-3 py-2 rounded-lg bg-rentora-bg border border-rentora-border
+                                text-white text-sm placeholder-rentora-muted outline-none
+                                focus:border-rentora-primary transition" />
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-rentora-muted uppercase tracking-wider mb-1.5">
+                    Category *
+                  </label>
+                  <select [(ngModel)]="form.category_id"
+                          class="w-full px-3 py-2 rounded-lg bg-rentora-bg border border-rentora-border
+                                 text-white text-sm outline-none focus:border-rentora-primary transition">
+                    <option value="" disabled>Select…</option>
+                    @for (cat of categories; track cat.id) {
+                      <option [value]="cat.id">{{ cat.name }}</option>
+                    }
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-rentora-muted uppercase tracking-wider mb-1.5">
+                  Description
+                </label>
+                <textarea [(ngModel)]="form.description" rows="3"
+                          class="w-full px-3 py-2 rounded-lg bg-rentora-bg border border-rentora-border
+                                 text-white text-sm placeholder-rentora-muted outline-none
+                                 focus:border-rentora-primary transition resize-none"></textarea>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-semibold text-rentora-muted uppercase tracking-wider mb-1.5">
+                    Rental Price / Day (৳) *
+                  </label>
+                  <input type="number" min="1" [(ngModel)]="form.rental_price_per_day"
+                         class="w-full px-3 py-2 rounded-lg bg-rentora-bg border border-rentora-border
+                                text-white text-sm placeholder-rentora-muted outline-none
+                                focus:border-rentora-primary transition" />
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-rentora-muted uppercase tracking-wider mb-1.5">
+                    Security Deposit (৳) *
+                  </label>
+                  <input type="number" min="0" [(ngModel)]="form.security_deposit"
+                         class="w-full px-3 py-2 rounded-lg bg-rentora-bg border border-rentora-border
+                                text-white text-sm placeholder-rentora-muted outline-none
+                                focus:border-rentora-primary transition" />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-rentora-muted uppercase tracking-wider mb-1.5">
+                  Condition
+                </label>
+                <select [(ngModel)]="form.condition"
+                        class="w-full px-3 py-2 rounded-lg bg-rentora-bg border border-rentora-border
+                               text-white text-sm outline-none focus:border-rentora-primary transition">
+                  <option value="new">New</option>
+                  <option value="excellent">Excellent</option>
+                  <option value="good">Good</option>
+                  <option value="fair">Fair</option>
+                  <option value="damaged">Damaged</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-rentora-muted uppercase tracking-wider mb-1.5">
+                  Photo URL
+                </label>
+                <input type="text" [(ngModel)]="form.image_url" placeholder="https://images.unsplash.com/…"
+                       class="w-full px-3 py-2 rounded-lg bg-rentora-bg border border-rentora-border
+                              text-white text-sm placeholder-rentora-muted outline-none
+                              focus:border-rentora-primary transition" />
+              </div>
+
+              <button
+                (click)="submitEditForm()"
+                [disabled]="isSubmitting"
+                class="w-full px-4 py-2.5 rounded-xl text-sm font-semibold text-white
+                       bg-gradient-to-r from-rentora-primary to-rentora-secondary
+                       hover:opacity-90 transition disabled:opacity-50">
+                {{ isSubmitting ? 'Saving…' : 'Save Changes' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (isLoading) {
+        <div class="space-y-2">
+          @for (i of [1,2,3]; track i) {
+            <div class="h-20 rounded-lg bg-rentora-surface border border-rentora-border animate-pulse"></div>
+          }
+        </div>
+      }
+
+      @if (!isLoading && products.length === 0) {
+        <div class="rounded-2xl border border-rentora-border bg-rentora-surface p-8 text-center">
+          <p class="text-rentora-muted text-sm mb-4">You haven't listed any products yet.</p>
+          <a routerLink="/sell"
+             class="inline-block px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition
+                    bg-gradient-to-r from-rentora-primary to-rentora-secondary hover:opacity-90">
+            Add your first product
+          </a>
+        </div>
+      }
+
+      @if (!isLoading && products.length > 0) {
+        <div class="space-y-3">
+          @for (product of products; track product.id) {
+            <div class="flex flex-wrap items-center gap-4 rounded-xl border border-rentora-border bg-rentora-surface p-4">
+              <div class="w-16 h-16 rounded-lg bg-rentora-bg overflow-hidden flex-shrink-0 flex items-center justify-center">
+                @if (product.images && product.images.length > 0) {
+                  <img [src]="product.images[0]" [alt]="product.title" class="w-full h-full object-cover" />
+                } @else {
+                  <span class="text-2xl opacity-20">📦</span>
+                }
+              </div>
+
+              <div class="flex-1 min-w-0">
+                <p class="font-semibold text-white text-sm truncate">{{ product.title }}</p>
+                <p class="text-xs text-rentora-muted">
+                  {{ product.category_name || 'Uncategorized' }}
+                  @if (product.brand) { · {{ product.brand }} }
+                  · {{ formatPrice(product.rental_price_per_day) }}/day
+                </p>
+              </div>
+
+              @if (product.status === 'booked') {
+                <span class="flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full
+                             bg-blue-400/10 text-blue-400">
+                  Rented
+                </span>
+              } @else {
+                <div class="flex-shrink-0 flex rounded-lg border border-rentora-border overflow-hidden text-xs font-semibold">
+                  <button
+                    (click)="setStatus(product, 'available')"
+                    [disabled]="updatingId === product.id"
+                    class="px-3 py-1.5 transition disabled:opacity-50"
+                    [class]="product.status === 'available'
+                      ? 'bg-emerald-500 text-white'
+                      : 'bg-rentora-bg text-rentora-muted hover:text-white'">
+                    Available
+                  </button>
+                  <button
+                    (click)="setStatus(product, 'maintenance')"
+                    [disabled]="updatingId === product.id"
+                    class="px-3 py-1.5 transition disabled:opacity-50 border-l border-rentora-border"
+                    [class]="product.status === 'maintenance'
+                      ? 'bg-orange-500 text-white'
+                      : 'bg-rentora-bg text-rentora-muted hover:text-white'">
+                    Maintenance
+                  </button>
+                </div>
+              }
+
+              <button (click)="openEditForm(product)"
+                      class="flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold text-white
+                             bg-rentora-border hover:bg-opacity-80 transition">
+                Edit
+              </button>
+              <button (click)="deleteProduct(product)"
+                      [disabled]="deletingId === product.id"
+                      class="flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold text-red-400
+                             border border-red-500/30 hover:bg-red-500/10 transition disabled:opacity-50">
+                {{ deletingId === product.id ? 'Deleting…' : 'Delete' }}
+              </button>
+            </div>
+          }
+        </div>
+      }
+    }
+
+  </div>
+</div>

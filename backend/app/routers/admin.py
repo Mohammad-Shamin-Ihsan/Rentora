@@ -2,8 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from pydantic import BaseModel
-from typing import Optional
-import json
 from app.database import get_db
 from app.middleware.auth_middleware import require_role
 from app.utils.notifications import notify_waitlist, notify
@@ -12,7 +10,6 @@ router = APIRouter()
 
 VALID_PRODUCT_STATUSES = {"available", "booked", "maintenance", "unavailable"}
 VALID_IMPORT_DECISIONS = {"approved", "rejected", "more_info_needed"}
-VALID_CONDITIONS       = {"new", "excellent", "good", "fair", "damaged"}
 
 
 class ProductStatusUpdate(BaseModel):
@@ -22,18 +19,6 @@ class ProductStatusUpdate(BaseModel):
 class ImportDecision(BaseModel):
     status:      str
     admin_notes: str | None = None
-
-
-class ProductCreate(BaseModel):
-    title:                    str
-    brand:                    Optional[str] = None
-    description:              Optional[str] = None
-    category_id:              str
-    rental_price_per_day:     float
-    security_deposit:         float
-    condition:                str = "good"
-    images:                   list[str] = []
-    technical_specifications: dict = {}
 
 @router.get("/dashboard")
 async def get_dashboard(
@@ -144,141 +129,6 @@ async def get_demand_analytics(
     ).fetchall()
 
     return {"data": [dict(row._mapping) for row in result]}
-
-
-@router.post("/products")
-async def create_product(
-    payload:      ProductCreate,
-    current_user: dict = Depends(require_role("admin")),
-    db:           Session = Depends(get_db)
-):
-    if payload.condition not in VALID_CONDITIONS:
-        raise HTTPException(status_code=400, detail=f"Condition must be one of {sorted(VALID_CONDITIONS)}")
-
-    if payload.rental_price_per_day <= 0 or payload.security_deposit < 0:
-        raise HTTPException(status_code=400, detail="Price must be positive and deposit cannot be negative")
-
-    category = db.execute(
-        text("SELECT id FROM public.categories WHERE id = :id"),
-        {"id": payload.category_id}
-    ).fetchone()
-
-    if not category:
-        raise HTTPException(status_code=404, detail="Category not found")
-
-    result = db.execute(
-        text("""
-            INSERT INTO public.products
-                (title, brand, description, category_id, rental_price_per_day,
-                 security_deposit, condition, status, images, technical_specifications)
-            VALUES
-                (:title, :brand, :description, :category_id, :rental_price_per_day,
-                 :security_deposit, :condition, 'available', :images, CAST(:specs AS jsonb))
-            RETURNING *
-        """),
-        {
-            "title":                 payload.title,
-            "brand":                 payload.brand,
-            # products.description is NOT NULL on the real table; the
-            # frontend form treats it as optional, so coalesce here
-            # rather than push a "required" constraint back up to the UI.
-            "description":           payload.description or "",
-            "category_id":           payload.category_id,
-            "rental_price_per_day":  payload.rental_price_per_day,
-            "security_deposit":      payload.security_deposit,
-            "condition":             payload.condition,
-            "images":                payload.images,
-            "specs":                 json.dumps(payload.technical_specifications),
-        }
-    )
-    db.commit()
-
-    return {
-        "message": "Product listed successfully",
-        "product": dict(result.fetchone()._mapping)
-    }
-
-
-@router.get("/products")
-async def list_all_products(
-    current_user: dict = Depends(require_role("admin")),
-    db:           Session = Depends(get_db)
-):
-    # Unlike the public GET /api/products/ (which defaults to
-    # status='available' only), this returns every product regardless
-    # of status, so admins can find and edit anything they've listed.
-    result = db.execute(
-        text("""
-            SELECT p.*, c.name as category_name
-            FROM public.products p
-            LEFT JOIN public.categories c ON p.category_id = c.id
-            ORDER BY p.created_at DESC
-        """)
-    ).fetchall()
-    return {"data": [dict(row._mapping) for row in result]}
-
-
-@router.patch("/products/{product_id}")
-async def update_product(
-    product_id:   str,
-    payload:      ProductCreate,
-    current_user: dict = Depends(require_role("admin")),
-    db:           Session = Depends(get_db)
-):
-    if payload.condition not in VALID_CONDITIONS:
-        raise HTTPException(status_code=400, detail=f"Condition must be one of {sorted(VALID_CONDITIONS)}")
-
-    if payload.rental_price_per_day <= 0 or payload.security_deposit < 0:
-        raise HTTPException(status_code=400, detail="Price must be positive and deposit cannot be negative")
-
-    existing = db.execute(
-        text("SELECT id FROM public.products WHERE id = :id"),
-        {"id": product_id}
-    ).fetchone()
-    if not existing:
-        raise HTTPException(status_code=404, detail="Product not found")
-
-    category = db.execute(
-        text("SELECT id FROM public.categories WHERE id = :id"),
-        {"id": payload.category_id}
-    ).fetchone()
-    if not category:
-        raise HTTPException(status_code=404, detail="Category not found")
-
-    result = db.execute(
-        text("""
-            UPDATE public.products
-            SET title = :title,
-                brand = :brand,
-                description = :description,
-                category_id = :category_id,
-                rental_price_per_day = :rental_price_per_day,
-                security_deposit = :security_deposit,
-                condition = :condition,
-                images = :images,
-                technical_specifications = CAST(:specs AS jsonb)
-            WHERE id = :id
-            RETURNING *
-        """),
-        {
-            "title":                 payload.title,
-            "brand":                 payload.brand,
-            "description":           payload.description or "",
-            "category_id":           payload.category_id,
-            "rental_price_per_day":  payload.rental_price_per_day,
-            "security_deposit":      payload.security_deposit,
-            "condition":             payload.condition,
-            "images":                payload.images,
-            "specs":                 json.dumps(payload.technical_specifications),
-            "id":                    product_id,
-        }
-    )
-    db.commit()
-
-    return {
-        "message": "Product updated successfully",
-        "product": dict(result.fetchone()._mapping)
-    }
 
 
 @router.get("/bookings")

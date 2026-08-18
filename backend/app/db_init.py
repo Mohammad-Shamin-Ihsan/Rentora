@@ -47,6 +47,7 @@ def init_db_tables(engine):
             conn.execute(text("""
                 CREATE TABLE IF NOT EXISTS public.products (
                     id                       UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    seller_id                UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
                     title                    VARCHAR(255) NOT NULL,
                     brand                    VARCHAR(255),
                     description              TEXT,
@@ -68,8 +69,10 @@ def init_db_tables(engine):
             # it ships with no migrations, so the table pre-dates this script). This
             # ALTER is what actually gets review_count onto that existing table.
             conn.execute(text("ALTER TABLE public.products ADD COLUMN IF NOT EXISTS review_count INTEGER DEFAULT 0;"))
+            conn.execute(text("ALTER TABLE public.products ADD COLUMN IF NOT EXISTS seller_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL;"))
             conn.execute(text("CREATE INDEX IF NOT EXISTS idx_products_category_id ON public.products (category_id);"))
             conn.execute(text("CREATE INDEX IF NOT EXISTS idx_products_status ON public.products (status);"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS idx_products_seller_id ON public.products (seller_id);"))
 
             conn.execute(text("""
                 CREATE TABLE IF NOT EXISTS public.product_availability (
