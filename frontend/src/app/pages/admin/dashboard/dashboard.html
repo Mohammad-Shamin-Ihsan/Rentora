@@ -25,6 +25,26 @@
         </div>
       </div>
 
+      <!-- Tabs -->
+      <div class="flex gap-2 mb-6 border-b border-rentora-border">
+        <button (click)="setTab('imports')"
+                class="px-4 py-2 text-sm font-medium border-b-2 -mb-px transition"
+                [class]="activeTab === 'imports'
+                  ? 'border-rentora-primary text-white'
+                  : 'border-transparent text-rentora-muted hover:text-white'">
+          Import Requests
+        </button>
+        <button (click)="setTab('analytics')"
+                class="px-4 py-2 text-sm font-medium border-b-2 -mb-px transition"
+                [class]="activeTab === 'analytics'
+                  ? 'border-rentora-primary text-white'
+                  : 'border-transparent text-rentora-muted hover:text-white'">
+          Demand Analytics
+        </button>
+      </div>
+
+      @if (activeTab === 'imports') {
+
       <!-- Import Requests -->
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-lg font-semibold text-white">Import Requests</h2>
@@ -121,6 +141,53 @@
           </div>
         }
       </div>
+
+      } <!-- /activeTab === 'imports' -->
+
+      @if (activeTab === 'analytics') {
+        <h2 class="text-lg font-semibold text-white mb-1">Demand Analytics</h2>
+        <p class="text-rentora-muted text-sm mb-5">
+          What customers search for, ranked by how often it comes up empty locally — the strongest
+          signal for what to import next.
+        </p>
+
+        @if (isLoadingDemand) {
+          <div class="space-y-2">
+            @for (i of [1,2,3,4]; track i) {
+              <div class="h-10 rounded-lg bg-rentora-surface border border-rentora-border animate-pulse"></div>
+            }
+          </div>
+        }
+
+        @if (!isLoadingDemand && demandRows.length === 0) {
+          <p class="text-rentora-muted text-sm py-8 text-center">No search activity recorded yet.</p>
+        }
+
+        @if (!isLoadingDemand && demandRows.length > 0) {
+          <div class="space-y-3">
+            @for (row of demandRows; track row.search_term) {
+              <div class="rounded-xl border border-rentora-border bg-rentora-surface p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-sm font-medium text-white capitalize">{{ row.search_term }}</span>
+                  <div class="flex items-center gap-3 text-xs text-rentora-muted flex-shrink-0">
+                    @if (row.unavailable_count > 0) {
+                      <span class="px-2 py-0.5 rounded-full bg-red-400/10 text-red-400 font-semibold">
+                        {{ row.unavailable_count }} unmatched
+                      </span>
+                    }
+                    <span>{{ row.search_count }} searches</span>
+                  </div>
+                </div>
+                <div class="h-1.5 rounded-full bg-rentora-bg overflow-hidden">
+                  <div class="h-full bg-gradient-to-r from-rentora-primary to-rentora-secondary"
+                       [style.width.%]="(row.search_count / maxSearchCount) * 100">
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      }
 
     }
 

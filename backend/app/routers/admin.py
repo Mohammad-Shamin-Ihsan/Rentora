@@ -107,6 +107,30 @@ async def decide_import_request(
     }
 
 
+@router.get("/demand-analytics")
+async def get_demand_analytics(
+    current_user: dict = Depends(require_role("admin")),
+    db:           Session = Depends(get_db)
+):
+    # Frequently searched-for terms, prioritizing ones that came up
+    # empty (unavailable locally) - the strongest signal for what to import next.
+    result = db.execute(
+        text("""
+            SELECT
+                search_term,
+                COUNT(*) as search_count,
+                COUNT(*) FILTER (WHERE was_available = false) as unavailable_count,
+                MAX(searched_at) as last_searched_at
+            FROM public.demand_analytics
+            GROUP BY search_term
+            ORDER BY unavailable_count DESC, search_count DESC
+            LIMIT 25
+        """)
+    ).fetchall()
+
+    return {"data": [dict(row._mapping) for row in result]}
+
+
 @router.patch("/products/{product_id}/status")
 async def update_product_status(
     product_id:   str,

@@ -18,6 +18,13 @@ interface ImportRequest {
   created_at:                      string;
 }
 
+interface DemandRow {
+  search_term:        string;
+  search_count:       number;
+  unavailable_count:  number;
+  last_searched_at:   string;
+}
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -41,6 +48,10 @@ export class Dashboard implements OnInit {
 
   statusFilter: 'pending' | 'all' = 'pending';
 
+  activeTab: 'imports' | 'analytics' = 'imports';
+  demandRows: DemandRow[] = [];
+  isLoadingDemand = true;
+
   constructor(
     private http: HttpClient,
     private cdr:  ChangeDetectorRef
@@ -49,6 +60,31 @@ export class Dashboard implements OnInit {
   ngOnInit() {
     this.loadDashboard();
     this.loadImportRequests();
+    this.loadDemandAnalytics();
+  }
+
+  loadDemandAnalytics() {
+    this.isLoadingDemand = true;
+    this.http.get<any>(`${this.apiUrl}/admin/demand-analytics`).subscribe({
+      next: (res) => {
+        this.demandRows       = res.data || [];
+        this.isLoadingDemand  = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isLoadingDemand = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  get maxSearchCount(): number {
+    return Math.max(1, ...this.demandRows.map(r => r.search_count));
+  }
+
+  setTab(tab: 'imports' | 'analytics') {
+    this.activeTab = tab;
+    this.cdr.detectChanges();
   }
 
   loadDashboard() {
