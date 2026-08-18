@@ -67,10 +67,15 @@ async def get_my_import_requests(
 ):
     result = db.execute(
         text("""
-            SELECT *
-            FROM public.import_requests
-            WHERE customer_id = :customer_id
-            ORDER BY created_at DESC
+            SELECT
+                ir.*,
+                cs.status as shipment_status,
+                cs.tracking_notes as shipment_notes,
+                cs.updated_at as shipment_updated_at
+            FROM public.import_requests ir
+            LEFT JOIN public.cargo_shipments cs ON cs.import_request_id = ir.id
+            WHERE ir.customer_id = :customer_id
+            ORDER BY ir.created_at DESC
         """),
         {"customer_id": current_user["id"]}
     ).fetchall()

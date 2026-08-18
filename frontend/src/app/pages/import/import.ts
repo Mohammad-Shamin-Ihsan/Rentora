@@ -15,6 +15,8 @@ interface ImportRequest {
   status:                          string;
   admin_notes:                     string | null;
   created_at:                      string;
+  shipment_status:                 string | null;
+  shipment_notes:                  string | null;
 }
 
 @Component({
@@ -125,5 +127,21 @@ export class Import implements OnInit {
 
   getStatusLabel(status: string): string {
     return status.replace(/_/g, ' ');
+  }
+
+  readonly cargoStages = ['purchased', 'in_transit', 'customs_cleared', 'arrived'];
+
+  cargoStageIndex(status: string | null): number {
+    return status ? this.cargoStages.indexOf(status) : -1;
+  }
+
+  cargoStageLabel(stage: string): string {
+    const map: Record<string, string> = {
+      'purchased':       'Purchased',
+      'in_transit':      'In Transit',
+      'customs_cleared': 'Customs Cleared',
+      'arrived':         'Arrived'
+    };
+    return map[stage] || stage;
   }
 }

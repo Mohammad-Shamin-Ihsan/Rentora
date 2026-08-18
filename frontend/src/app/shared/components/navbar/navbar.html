@@ -76,6 +76,21 @@
           }
         </div>
 
+        @if (user.role === 'admin') {
+          <a routerLink="/admin" class="hidden md:inline text-rentora-muted hover:text-white transition">
+            Admin
+          </a>
+        }
+        @if (user.role === 'cargo_manager') {
+          <a routerLink="/cargo" class="hidden md:inline text-rentora-muted hover:text-white transition">
+            Cargo
+          </a>
+        }
+        @if (user.role === 'warehouse_staff') {
+          <a routerLink="/warehouse" class="hidden md:inline text-rentora-muted hover:text-white transition">
+            Warehouse
+          </a>
+        }
         <a routerLink="/rentals"
            class="hidden md:inline text-rentora-muted hover:text-white transition">
           My Rentals

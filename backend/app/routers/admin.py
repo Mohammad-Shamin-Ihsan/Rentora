@@ -4,15 +4,21 @@ from sqlalchemy import text
 from pydantic import BaseModel
 from app.database import get_db
 from app.middleware.auth_middleware import require_role
-from app.utils.notifications import notify_waitlist
+from app.utils.notifications import notify_waitlist, notify
 
 router = APIRouter()
 
 VALID_PRODUCT_STATUSES = {"available", "booked", "maintenance", "unavailable"}
+VALID_IMPORT_DECISIONS = {"approved", "rejected", "more_info_needed"}
 
 
 class ProductStatusUpdate(BaseModel):
     status: str
+
+
+class ImportDecision(BaseModel):
+    status:      str
+    admin_notes: str | None = None
 
 @router.get("/dashboard")
 async def get_dashboard(
@@ -46,6 +52,59 @@ async def get_all_import_requests(
         """)
     ).fetchall()
     return {"data": [dict(row._mapping) for row in result]}
+
+
+@router.patch("/import-requests/{request_id}")
+async def decide_import_request(
+    request_id:   str,
+    payload:      ImportDecision,
+    current_user: dict = Depends(require_role("admin")),
+    db:           Session = Depends(get_db)
+):
+    if payload.status not in VALID_IMPORT_DECISIONS:
+        raise HTTPException(status_code=400, detail=f"Status must be one of {sorted(VALID_IMPORT_DECISIONS)}")
+
+    request_row = db.execute(
+        text("SELECT * FROM public.import_requests WHERE id = :id"),
+        {"id": request_id}
+    ).fetchone()
+
+    if not request_row:
+        raise HTTPException(status_code=404, detail="Import request not found")
+
+    result = db.execute(
+        text("""
+            UPDATE public.import_requests
+            SET status = :status, admin_notes = :admin_notes
+            WHERE id = :id
+            RETURNING *
+        """),
+        {"status": payload.status, "admin_notes": payload.admin_notes, "id": request_id}
+    ).fetchone()
+
+    # Approval kicks off cargo tracking for this request
+    if payload.status == "approved":
+        db.execute(
+            text("""
+                INSERT INTO public.cargo_shipments (import_request_id, status)
+                VALUES (:import_request_id, 'purchased')
+            """),
+            {"import_request_id": request_id}
+        )
+
+    status_messages = {
+        "approved":         f'Your import request for "{request_row.product_name}" was approved! We\'re now sourcing it.',
+        "rejected":         f'Your import request for "{request_row.product_name}" was declined.',
+        "more_info_needed": f'We need more information about your import request for "{request_row.product_name}".',
+    }
+    notify(db, str(request_row.customer_id), "Import request update", status_messages[payload.status])
+
+    db.commit()
+
+    return {
+        "message": f"Import request {payload.status}",
+        "request": dict(result._mapping)
+    }
 
 
 @router.patch("/products/{product_id}/status")

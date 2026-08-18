@@ -1,0 +1,113 @@
+<div class="min-h-screen bg-rentora-bg text-rentora-text">
+  <div class="max-w-4xl mx-auto px-6 py-10">
+
+    <h1 class="text-2xl font-bold text-white mb-1">Cargo Tracking</h1>
+    <p class="text-rentora-muted text-sm mb-8">
+      Move approved imports through the pipeline: Purchased → In Transit → Customs Cleared → Arrived.
+    </p>
+
+    @if (accessDenied) {
+      <div class="rounded-2xl border border-red-500/30 bg-red-500/10 p-8 text-center">
+        <p class="text-red-400 font-semibold mb-1">Access Denied</p>
+        <p class="text-rentora-muted text-sm">This page is only available to cargo manager accounts.</p>
+      </div>
+    }
+
+    @if (isLoading) {
+      <div class="space-y-4">
+        @for (i of [1,2]; track i) {
+          <div class="rounded-2xl border border-rentora-border bg-rentora-surface p-5 animate-pulse h-28"></div>
+        }
+      </div>
+    }
+
+    @if (!isLoading && !accessDenied && shipments.length === 0) {
+      <p class="text-rentora-muted text-sm py-8 text-center">No shipments yet — they appear here once an admin approves an import request.</p>
+    }
+
+    @if (!isLoading && !accessDenied && shipments.length > 0) {
+      <div class="space-y-4">
+        @for (s of shipments; track s.id) {
+          <div class="rounded-2xl border border-rentora-border bg-rentora-surface p-5">
+
+            <div class="flex items-start justify-between gap-3 mb-3">
+              <div>
+                <p class="font-semibold text-white">{{ s.product_name }}</p>
+                <p class="text-xs text-rentora-muted">{{ s.customer_name }} · {{ s.customer_email }}</p>
+              </div>
+              <span class="text-xs font-semibold px-2 py-1 rounded-full capitalize flex-shrink-0
+                           bg-rentora-primary/10 text-rentora-primary">
+                {{ stageLabel(s.status) }}
+              </span>
+            </div>
+
+            <!-- Stage progress -->
+            <div class="flex items-center mb-4">
+              @for (stage of stages; track stage; let i = $index) {
+                <div class="flex items-center flex-1 last:flex-none">
+                  <div class="flex flex-col items-center flex-shrink-0">
+                    <div class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold"
+                         [class]="i <= stageIndex(s.status)
+                           ? 'bg-rentora-primary text-white'
+                           : 'bg-rentora-border text-rentora-muted'">
+                      @if (i < stageIndex(s.status) || (i === stageIndex(s.status) && i === stages.length - 1)) { ✓ } @else { {{ i + 1 }} }
+                    </div>
+                    <span class="text-[10px] text-rentora-muted mt-1 text-center w-16">
+                      {{ stageLabel(stage) }}
+                    </span>
+                  </div>
+                  @if (i < stages.length - 1) {
+                    <div class="flex-1 h-0.5 mb-4"
+                         [class]="i < stageIndex(s.status) ? 'bg-rentora-primary' : 'bg-rentora-border'">
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+
+            <div class="flex flex-wrap gap-x-5 gap-y-1 text-xs text-rentora-muted mb-3">
+              <span>Est. Budget: {{ formatPrice(s.estimated_budget) }}</span>
+              <span>Duration: {{ s.preferred_rental_duration_days }} days</span>
+              <span>Requested: {{ formatDate(s.created_at) }}</span>
+            </div>
+
+            @if (s.tracking_notes) {
+              <p class="text-xs text-rentora-muted mb-3">📦 Last note: {{ s.tracking_notes }}</p>
+            }
+
+            @if (nextStage(s.status)) {
+              <div class="flex gap-2">
+                <input
+                  type="text"
+                  [(ngModel)]="noteDrafts[s.id]"
+                  placeholder="Tracking note (optional)…"
+                  class="flex-1 px-3 py-2 rounded-lg bg-rentora-bg border border-rentora-border
+                         text-white text-sm placeholder-rentora-muted outline-none
+                         focus:border-rentora-primary transition"
+                />
+                <button
+                  (click)="advance(s)"
+                  [disabled]="updatingId === s.id"
+                  class="px-4 py-2 rounded-lg text-sm font-semibold text-white
+                         bg-gradient-to-r from-rentora-primary to-rentora-secondary
+                         hover:opacity-90 transition disabled:opacity-50 whitespace-nowrap">
+                  @if (updatingId === s.id) {
+                    Updating…
+                  } @else {
+                    Mark as {{ stageLabel(nextStage(s.status)!) }}
+                  }
+                </button>
+              </div>
+            } @else {
+              <p class="text-emerald-400 text-xs font-semibold">
+                ✅ Delivered — added to the rental catalog
+              </p>
+            }
+
+          </div>
+        }
+      </div>
+    }
+
+  </div>
+</div>

@@ -54,6 +54,12 @@ export const routes: Routes = [
         .then(m => m.Dashboard )
   },
   {
+    path: 'cargo',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/cargo/cargo').then(m => m.Cargo)
+  },
+  {
     path: 'warehouse',
     canActivate: [authGuard],
     loadComponent: () =>
