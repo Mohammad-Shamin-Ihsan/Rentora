@@ -1,10 +1,13 @@
+import io
 from datetime import date
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from pydantic import BaseModel
 from app.database import get_db
 from app.middleware.auth_middleware import get_current_user
+from app.utils.invoice import build_invoice_pdf
 
 router = APIRouter()
 
@@ -150,9 +153,74 @@ async def create_booking(
             "total_amount":     total_amount
         }
     )
+    booking = dict(result.fetchone()._mapping)
+
+    # Mock payment: rental fee + tax settle immediately, deposit sits in escrow
+    # until the product is returned and inspected (see returns.py for the refund).
+    db.execute(
+        text("""
+            INSERT INTO public.payments (booking_id, amount, type, status, transaction_reference)
+            VALUES (:booking_id, :amount, 'rental_fee', 'completed', :ref)
+        """),
+        {
+            "booking_id": booking["id"],
+            "amount":     rental_fee + tax_amount,
+            "ref":        f"MOCK-RENT-{booking['id']}"
+        }
+    )
+    db.execute(
+        text("""
+            INSERT INTO public.payments (booking_id, amount, type, status, transaction_reference)
+            VALUES (:booking_id, :amount, 'security_deposit', 'escrow', :ref)
+        """),
+        {
+            "booking_id": booking["id"],
+            "amount":     security_deposit,
+            "ref":        f"MOCK-DEPOSIT-{booking['id']}"
+        }
+    )
     db.commit()
 
     return {
         "message": "Booking confirmed successfully",
-        "booking": dict(result.fetchone()._mapping)
+        "booking": booking
     }
+
+
+# ─────────────────────────────────────────
+# GET /api/bookings/{booking_id}/invoice
+# Downloadable PDF invoice (owner only)
+# ─────────────────────────────────────────
+@router.get("/{booking_id}/invoice")
+async def get_invoice(
+    booking_id:   str,
+    current_user: dict = Depends(get_current_user),
+    db:           Session = Depends(get_db)
+):
+    booking = db.execute(
+        text("""
+            SELECT b.*, p.title as product_title, p.brand,
+                   pr.full_name as customer_name, pr.email as customer_email
+            FROM public.bookings b
+            JOIN public.products p ON b.product_id = p.id
+            JOIN public.profiles pr ON b.customer_id = pr.id
+            WHERE b.id = :id
+        """),
+        {"id": booking_id}
+    ).fetchone()
+
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+
+    if str(booking.customer_id) != str(current_user["id"]):
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    pdf_bytes = build_invoice_pdf(dict(booking._mapping))
+
+    return StreamingResponse(
+        io.BytesIO(pdf_bytes),
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f"attachment; filename=rentora-invoice-{booking_id[:8]}.pdf"
+        }
+    )

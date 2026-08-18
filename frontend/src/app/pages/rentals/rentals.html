@@ -1,0 +1,110 @@
+<div class="min-h-screen bg-rentora-bg text-rentora-text">
+  <div class="max-w-5xl mx-auto px-6 py-10">
+
+    <h1 class="text-2xl font-bold text-white mb-1">My Rentals</h1>
+    <p class="text-rentora-muted text-sm mb-6">
+      Your booking history, statuses, and downloadable invoices.
+    </p>
+
+    <!-- Loading -->
+    @if (isLoading) {
+      <div class="space-y-4">
+        @for (i of [1,2,3]; track i) {
+          <div class="rounded-2xl border border-rentora-border bg-rentora-surface p-5 animate-pulse
+                      flex gap-4">
+            <div class="w-24 h-24 rounded-xl bg-rentora-border flex-shrink-0"></div>
+            <div class="flex-1 space-y-3">
+              <div class="h-4 bg-rentora-border rounded w-1/3"></div>
+              <div class="h-3 bg-rentora-border rounded w-1/2"></div>
+              <div class="h-3 bg-rentora-border rounded w-1/4"></div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Error -->
+    @if (!isLoading && errorMessage) {
+      <div class="px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+        {{ errorMessage }}
+      </div>
+    }
+
+    <!-- Empty -->
+    @if (!isLoading && !errorMessage && bookings.length === 0) {
+      <div class="text-center py-20 rounded-2xl border border-rentora-border bg-rentora-surface">
+        <p class="text-5xl mb-4">📦</p>
+        <p class="text-white font-semibold text-lg mb-2">No rentals yet</p>
+        <p class="text-rentora-muted text-sm mb-6">
+          Browse the catalog to book your first item.
+        </p>
+        <a routerLink="/browse"
+           class="inline-block px-6 py-2 rounded-xl text-sm font-semibold text-white
+                  bg-gradient-to-r from-rentora-primary to-rentora-secondary
+                  hover:opacity-90 transition">
+          Browse Rentals
+        </a>
+      </div>
+    }
+
+    <!-- Bookings list -->
+    @if (!isLoading && !errorMessage && bookings.length > 0) {
+      <div class="space-y-4">
+        @for (booking of bookings; track booking.id) {
+          <div class="rounded-2xl border border-rentora-border bg-rentora-surface p-5
+                      flex flex-col sm:flex-row gap-4">
+
+            <!-- Image -->
+            <a [routerLink]="['/products', booking.product_id]"
+               class="w-full sm:w-24 h-40 sm:h-24 rounded-xl bg-rentora-bg overflow-hidden flex-shrink-0">
+              @if (getProductImage(booking)) {
+                <img [src]="getProductImage(booking)" [alt]="booking.product_title"
+                     class="w-full h-full object-cover" />
+              }
+            </a>
+
+            <!-- Info -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between gap-3 mb-2">
+                <a [routerLink]="['/products', booking.product_id]"
+                   class="font-semibold text-white hover:text-rentora-primary transition truncate">
+                  {{ booking.product_title }}
+                </a>
+                <span class="text-xs font-semibold px-2 py-1 rounded-full capitalize flex-shrink-0"
+                      [class]="getStatusColor(booking.status)">
+                  {{ booking.status }}
+                </span>
+              </div>
+
+              <p class="text-sm text-rentora-muted mb-3">
+                {{ formatDate(booking.start_date) }} – {{ formatDate(booking.end_date) }}
+              </p>
+
+              <div class="flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-rentora-muted mb-3">
+                <span>Rental: {{ formatPrice(booking.total_rental_fee) }}</span>
+                <span>Tax: {{ formatPrice(booking.tax) }}</span>
+                <span>Deposit: {{ formatPrice(booking.security_deposit) }}</span>
+                <span class="text-white font-semibold">Total: {{ formatPrice(booking.total_amount) }}</span>
+              </div>
+
+              <button
+                (click)="downloadInvoice(booking)"
+                [disabled]="downloadingId === booking.id"
+                class="text-xs font-semibold px-3 py-1.5 rounded-lg border border-rentora-border
+                       text-rentora-muted hover:text-white hover:border-white transition
+                       disabled:opacity-50 disabled:cursor-not-allowed">
+                @if (downloadingId === booking.id) {
+                  Preparing…
+                } @else {
+                  ⬇ Download Invoice
+                }
+              </button>
+            </div>
+
+          </div>
+        }
+      </div>
+    }
+
+  </div>
+</div>

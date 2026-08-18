@@ -16,6 +16,10 @@
     <!-- Right Side -->
     <div class="flex items-center gap-4">
       @if (authService.currentUser$ | async; as user) {
+        <a routerLink="/rentals"
+           class="hidden md:inline text-rentora-muted hover:text-white transition">
+          My Rentals
+        </a>
         <a routerLink="/profile"
            class="text-rentora-muted hover:text-white transition">
           {{ user.full_name }}
