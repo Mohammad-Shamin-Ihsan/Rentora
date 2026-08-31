@@ -1,0 +1,83 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+#
+# Deploy:
+#   1. Commit this file and push to GitHub.
+#   2. Render dashboard -> New + -> Blueprint -> select this repo -> Apply.
+#   3. Render creates the database + both services and wires the env vars below.
+#
+# After the first deploy, check the real URLs Render assigned. If they are NOT
+# exactly the two *.onrender.com hosts below (the names may already be taken),
+# update:
+#   - services[frontend].routes[0].destination  -> <backend real URL>/api/*
+#   - services[backend].envVars FRONTEND_URL    -> <frontend real URL>
+# then click "Manual Deploy" on the affected service.
+
+databases:
+  - name: rentora-db
+    databaseName: rentora
+    user: rentora
+    region: singapore
+    plan: free          # NOTE: Render free Postgres is deleted after 30 days. Use "basic-256mb" for anything lasting.
+
+services:
+  # ---------- FastAPI backend (Docker) ----------
+  - type: web
+    name: rentora-backend
+    runtime: docker
+    dockerfilePath: backend/Dockerfile
+    dockerContext: backend
+    region: singapore
+    plan: free          # free instances sleep after ~15 min idle and cold-start (~30-60s) on the next request
+    healthCheckPath: /
+    autoDeployTrigger: commit
+    envVars:
+      - key: PORT
+        value: "8000"
+      - key: DB_HOST
+        fromDatabase:
+          name: rentora-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: rentora-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: rentora-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: rentora-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: rentora-db
+          property: password
+      - key: JWT_SECRET
+        generateValue: true          # Render generates a strong value once and keeps it
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: JWT_EXPIRE_MINUTES
+        value: "1440"
+      - key: FRONTEND_URL
+        value: https://rentora-frontend.onrender.com
+
+  # ---------- Angular frontend (static site, proxies /api to the backend) ----------
+  - type: web
+    name: rentora-frontend
+    runtime: static
+    buildCommand: cd frontend && npm ci && npm run build
+    staticPublishPath: frontend/dist/frontend/browser
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_VERSION
+        value: "22.11.0"
+    routes:
+      # Same-origin API proxy — Render forwards these to the backend server-side, so no CORS.
+      - type: rewrite
+        source: /api/*
+        destination: https://rentora-backend.onrender.com/api/*
+      # SPA fallback — every other path serves the Angular shell.
+      - type: rewrite
+        source: /*
+        destination: /index.html

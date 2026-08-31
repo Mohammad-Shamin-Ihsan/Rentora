@@ -67,7 +67,41 @@ sql/
   seed_products.sql
 ```
 
-## Getting Started
+## Run with Docker
+
+The whole stack (Postgres + FastAPI + Angular behind nginx) runs from one file:
+
+```bash
+cp .env.docker.example .env   # optional — defaults work as-is; edit JWT_SECRET for anything real
+docker compose up --build
+```
+
+Open `http://localhost:8080`. The frontend container's nginx serves the built
+Angular app and proxies `/api` to the backend, so there's no CORS setup and no
+backend URL to hardcode. Postgres data persists in the `pgdata` volume; the
+backend seeds the demo catalog on first startup (see **Test Accounts** below).
+
+Ports and secrets are overridable via `.env` — see `.env.docker.example`.
+Stop with `docker compose down` (add `-v` to also wipe the database).
+
+## Deploy to Render
+
+`render.yaml` is a [Blueprint](https://render.com/docs/blueprint-spec) that
+provisions a managed Postgres, the backend (from `backend/Dockerfile`), and the
+frontend (static build, with `/api/*` rewritten to the backend so it stays
+same-origin — no CORS).
+
+1. Push the repo to GitHub.
+2. Render dashboard → **New +** → **Blueprint** → pick the repo → **Apply**.
+3. `JWT_SECRET` is auto-generated; the DB vars are wired from the managed database.
+
+After the first deploy, if Render didn't hand out `rentora-backend.onrender.com` /
+`rentora-frontend.onrender.com` (the names may be taken), update the route
+`destination` and `FRONTEND_URL` in `render.yaml` to the real URLs and redeploy.
+The free tiers sleep when idle and the free database is deleted after 30 days —
+bump the plans for anything long-lived.
+
+## Getting Started (local, without Docker)
 
 ### Prerequisites
 - Python 3.13+
