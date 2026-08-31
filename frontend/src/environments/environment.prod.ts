@@ -1,4 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://your-backend.vercel.app/api'
+  // Relative path — nginx in the frontend container proxies /api to the backend.
+  apiUrl: '/api'
 };

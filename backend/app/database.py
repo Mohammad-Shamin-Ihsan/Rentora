@@ -8,7 +8,8 @@ engine = create_engine(
     pool_size=20,           # Keep more connections hot
     max_overflow=10,
     pool_recycle=3600,
-    pool_timeout=10         # Fail fast instead of hanging
+    pool_timeout=10,        # Fail fast instead of hanging
+    pool_pre_ping=True      # Drop dead connections (e.g. after a DB container restart)
 )
 
 # Session factory
