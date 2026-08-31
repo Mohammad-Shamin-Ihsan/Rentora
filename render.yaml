@@ -60,7 +60,7 @@ services:
       - key: JWT_EXPIRE_MINUTES
         value: "1440"
       - key: FRONTEND_URL
-        value: https://rentora-frontend.onrender.com
+        value: https://rentora-frontend-4d26.onrender.com
 
   # ---------- Angular frontend (static site, proxies /api to the backend) ----------
   - type: web
@@ -71,12 +71,12 @@ services:
     autoDeployTrigger: commit
     envVars:
       - key: NODE_VERSION
-        value: "22.11.0"
+        value: "24.15.0"          # Angular CLI floor is v22.22.3 / v24.15.0 / v26.0.0
     routes:
       # Same-origin API proxy — Render forwards these to the backend server-side, so no CORS.
       - type: rewrite
         source: /api/*
-        destination: https://rentora-backend.onrender.com/api/*
+        destination: https://rentora-backend-z0g6.onrender.com/api/*
       # SPA fallback — every other path serves the Angular shell.
       - type: rewrite
         source: /*
